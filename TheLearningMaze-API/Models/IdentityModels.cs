@@ -31,5 +31,7 @@ namespace TheLearningMaze_API.Models
         }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Professor> Professors { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Token> Tokens { get; set; }
     }
 }
