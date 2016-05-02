@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using TheLearningMaze_API.Filters;
 using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
@@ -23,6 +24,7 @@ namespace TheLearningMaze_API.Controllers
         }
 
         // GET: api/Professors/5
+        [ApiAuthFilter(true)]
         [ResponseType(typeof(Professor))]
         public IHttpActionResult GetProfessor(int id)
         {
