@@ -245,6 +245,7 @@
     <Compile Include="Controllers\CursoesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProfessorsController.cs" />
+    <Compile Include="Controllers\QuestaosController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\TipoEventoesController.cs" />
     <Compile Include="Controllers\TipoQuestaosController.cs" />
@@ -259,6 +260,7 @@
     <Compile Include="Models\Curso.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Professor.cs" />
+    <Compile Include="Models\Questao.cs" />
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\TipoEvento.cs" />
     <Compile Include="Models\TipoQuestao.cs" />
