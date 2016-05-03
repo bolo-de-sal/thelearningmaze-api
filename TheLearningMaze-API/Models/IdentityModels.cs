@@ -52,5 +52,9 @@ namespace TheLearningMaze_API.Models
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Imagem> Imagems { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Alternativa> Alternativas { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Participante> Participantes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Evento> Eventoes { get; set; }
     }
 }
