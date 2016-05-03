@@ -6,12 +6,17 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using System.Web.Http.Description;
+using TheLearningMaze_API.Filters;
 using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
+    [ApiAuthFilter(true)]
     public class ProfessorsController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -84,6 +89,41 @@ namespace TheLearningMaze_API.Controllers
 
             return CreatedAtRoute("DefaultApi", new { id = professor.codProfessor }, professor);
         }
+
+        // POST: api/Professors/login
+        [HttpPost]
+        [Route("api/Professors/login")]
+        public IHttpActionResult LoginProfessor(Professor professor)
+        {
+            if (professor.email == null || professor.senhaText == null)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                Professor _professor = db.Professors
+                                        .Where(p => p.email == professor.email)
+                                        .FirstOrDefault();
+                byte[] pwProfessor = new SHA1CryptoServiceProvider().ComputeHash(Encoding.ASCII.GetBytes(professor.senhaText));
+                if (pwProfessor.SequenceEqual(_professor.senha))
+                {
+                    string token = Request.Headers.Authorization.ToString().Substring(6);
+                    Token tokenEntity = db.Tokens
+                                        .Where(t => t.token == token)
+                                        .FirstOrDefault();
+                    tokenEntity.codProfessor = _professor.codProfessor;
+                    db.Entry(tokenEntity).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return Ok();
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+
+        }
+
 
         // DELETE: api/Professors/5
         [ResponseType(typeof(Professor))]
