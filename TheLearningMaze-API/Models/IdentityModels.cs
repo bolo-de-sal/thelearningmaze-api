@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -33,5 +34,7 @@ namespace TheLearningMaze_API.Models
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Professor> Professors { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Token> Tokens { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Area> Areas { get; set; }
     }
 }
