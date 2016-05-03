@@ -38,5 +38,9 @@ namespace TheLearningMaze_API.Models
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Area> Areas { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.TipoQuestao> TipoQuestaos { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Status> Status { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.TipoEvento> TipoEventoes { get; set; }
     }
 }

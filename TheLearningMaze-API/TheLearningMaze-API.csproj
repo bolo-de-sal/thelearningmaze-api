@@ -243,6 +243,8 @@
     <Compile Include="Controllers\AreasController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProfessorsController.cs" />
+    <Compile Include="Controllers\StatusController.cs" />
+    <Compile Include="Controllers\TipoEventoesController.cs" />
     <Compile Include="Controllers\TipoQuestaosController.cs" />
     <Compile Include="Controllers\TokensController.cs" />
     <Compile Include="Global.asax.cs">
@@ -253,6 +255,8 @@
     <Compile Include="Models\Area.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Professor.cs" />
+    <Compile Include="Models\Status.cs" />
+    <Compile Include="Models\TipoEvento.cs" />
     <Compile Include="Models\TipoQuestao.cs" />
     <Compile Include="Models\Token.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
