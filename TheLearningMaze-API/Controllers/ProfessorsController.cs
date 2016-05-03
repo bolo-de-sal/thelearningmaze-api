@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using System.Web.Http.Description;
 using TheLearningMaze_API.Filters;
 using TheLearningMaze_API.Models;
@@ -97,17 +98,30 @@ namespace TheLearningMaze_API.Controllers
             if (professor.email == null || professor.senhaText == null)
             {
                 return BadRequest();
-            } else
+            }
+            else
             {
                 Professor _professor = db.Professors
                                         .Where(p => p.email == professor.email)
                                         .FirstOrDefault();
                 byte[] pwProfessor = new SHA1CryptoServiceProvider().ComputeHash(Encoding.ASCII.GetBytes(professor.senhaText));
                 if (pwProfessor.SequenceEqual(_professor.senha))
+                {
+                    string token = Request.Headers.Authorization.ToString().Substring(6);
+                    Token tokenEntity = db.Tokens
+                                        .Where(t => t.token == token)
+                                        .FirstOrDefault();
+                    tokenEntity.codProfessor = _professor.codProfessor;
+                    db.Entry(tokenEntity).State = EntityState.Modified;
+                    db.SaveChanges();
                     return Ok();
-                return Unauthorized();
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
-            
+
         }
 
 
