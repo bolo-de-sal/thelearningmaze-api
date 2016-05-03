@@ -6,6 +6,8 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web.Http;
 using System.Web.Http.Description;
 using TheLearningMaze_API.Filters;
@@ -86,6 +88,28 @@ namespace TheLearningMaze_API.Controllers
 
             return CreatedAtRoute("DefaultApi", new { id = professor.codProfessor }, professor);
         }
+
+        // POST: api/Professors/login
+        [HttpPost]
+        [Route("api/Professors/login")]
+        public IHttpActionResult LoginProfessor(Professor professor)
+        {
+            if (professor.email == null || professor.senhaText == null)
+            {
+                return BadRequest();
+            } else
+            {
+                Professor _professor = db.Professors
+                                        .Where(p => p.email == professor.email)
+                                        .FirstOrDefault();
+                byte[] pwProfessor = new SHA1CryptoServiceProvider().ComputeHash(Encoding.ASCII.GetBytes(professor.senhaText));
+                if (pwProfessor.SequenceEqual(_professor.senha))
+                    return Ok();
+                return Unauthorized();
+            }
+            
+        }
+
 
         // DELETE: api/Professors/5
         [ResponseType(typeof(Professor))]

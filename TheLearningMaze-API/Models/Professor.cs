@@ -23,5 +23,9 @@ namespace TheLearningMaze_API.Models
         public String idSenac { get; set; }
 
         public String tipo { get; set; }
+
+        //Helper para auth
+        [NotMapped]
+        public String senhaText { get; set; }
     }
 }
