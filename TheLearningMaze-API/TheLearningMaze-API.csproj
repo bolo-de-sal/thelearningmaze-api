@@ -249,6 +249,7 @@
     <Compile Include="Controllers\ImagemsController.cs" />
     <Compile Include="Controllers\ParticipantesController.cs" />
     <Compile Include="Controllers\ProfessorsController.cs" />
+    <Compile Include="Controllers\QuestaoEventoesController.cs" />
     <Compile Include="Controllers\QuestaosController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\TipoEventoesController.cs" />
@@ -269,6 +270,7 @@
     <Compile Include="Models\Participante.cs" />
     <Compile Include="Models\Professor.cs" />
     <Compile Include="Models\Questao.cs" />
+    <Compile Include="Models\QuestaoEvento.cs" />
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\TipoEvento.cs" />
     <Compile Include="Models\TipoQuestao.cs" />
