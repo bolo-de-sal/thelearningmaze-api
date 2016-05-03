@@ -13,6 +13,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
+    [ApiAuthFilter(true)]
     public class ProfessorsController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -24,7 +25,6 @@ namespace TheLearningMaze_API.Controllers
         }
 
         // GET: api/Professors/5
-        [ApiAuthFilter(true)]
         [ResponseType(typeof(Professor))]
         public IHttpActionResult GetProfessor(int id)
         {

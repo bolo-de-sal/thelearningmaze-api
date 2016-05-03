@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Web;
 using System.Web.Http;
@@ -32,28 +35,36 @@ namespace TheLearningMaze_API.Filters
             {
                 return;
             }
+            
             HandleUnauthorizedRequest(actionContext);
         }
 
         protected void HandleUnauthorizedRequest(HttpActionContext actionContext)
         {
-            actionContext.Response.StatusCode = HttpStatusCode.Forbidden;
+            actionContext.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
             return;
         }
 
         private bool AuthorizeRequest(HttpActionContext actionContext)
         {
+            // Verifica se o cabeçalho contém "Authorization"
             if (actionContext.Request.Headers.Authorization != null)
             {
-                string token = actionContext.Request.Headers.Authorization.ToString();
-                Token tokenEntity = db.Tokens.Find(token);
-                if (tokenEntity.expiraEm >= DateTime.Now)
+                string token = actionContext.Request.Headers.Authorization.ToString().Substring(6); //Retira "Token "
+                Token tokenEntity = db.Tokens
+                                        .Where(t => t.token == token)
+                                        .FirstOrDefault();
+                if (tokenEntity != null && tokenEntity.expiraEm >= DateTime.Now)
                 {
+                    // Adiciona 15 minutos ao tempo de expiração
+                    tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
+                    db.Entry(tokenEntity).State = EntityState.Modified;                    
+                    db.SaveChanges();
+
                     return true;
                 }
             }
 
-            //Write your code here to perform authorization
             return false;
         }
     }
