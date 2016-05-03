@@ -42,5 +42,9 @@ namespace TheLearningMaze_API.Models
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Status> Status { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.TipoEvento> TipoEventoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Curso> Cursoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Assunto> Assuntoes { get; set; }
     }
 }
