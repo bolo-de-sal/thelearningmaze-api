@@ -244,10 +244,12 @@
     <Compile Include="Controllers\AreasController.cs" />
     <Compile Include="Controllers\AssuntoesController.cs" />
     <Compile Include="Controllers\CursoesController.cs" />
+    <Compile Include="Controllers\EventoAssuntoesController.cs" />
     <Compile Include="Controllers\EventoesController.cs" />
     <Compile Include="Controllers\GrupoesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImagemsController.cs" />
+    <Compile Include="Controllers\ParticipanteGrupoesController.cs" />
     <Compile Include="Controllers\ParticipantesController.cs" />
     <Compile Include="Controllers\ProfessorsController.cs" />
     <Compile Include="Controllers\QuestaoEventoesController.cs" />
@@ -267,10 +269,12 @@
     <Compile Include="Models\Assunto.cs" />
     <Compile Include="Models\Curso.cs" />
     <Compile Include="Models\Evento.cs" />
+    <Compile Include="Models\EventoAssunto.cs" />
     <Compile Include="Models\Grupo.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Imagem.cs" />
     <Compile Include="Models\Participante.cs" />
+    <Compile Include="Models\ParticipanteGrupo.cs" />
     <Compile Include="Models\Professor.cs" />
     <Compile Include="Models\Questao.cs" />
     <Compile Include="Models\QuestaoEvento.cs" />

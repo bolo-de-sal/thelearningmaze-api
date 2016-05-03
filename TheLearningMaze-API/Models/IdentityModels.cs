@@ -62,5 +62,9 @@ namespace TheLearningMaze_API.Models
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Grupo> Grupoes { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.QuestaoGrupo> QuestaoGrupoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.ParticipanteGrupo> ParticipanteGrupoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.EventoAssunto> EventoAssuntoes { get; set; }
     }
 }
