@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -33,5 +34,37 @@ namespace TheLearningMaze_API.Models
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Professor> Professors { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Token> Tokens { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Area> Areas { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.TipoQuestao> TipoQuestaos { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Status> Status { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.TipoEvento> TipoEventoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Curso> Cursoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Assunto> Assuntoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Questao> Questaos { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Imagem> Imagems { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Alternativa> Alternativas { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Participante> Participantes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Evento> Eventoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.QuestaoEvento> QuestaoEventoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Grupo> Grupoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.QuestaoGrupo> QuestaoGrupoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.ParticipanteGrupo> ParticipanteGrupoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.EventoAssunto> EventoAssuntoes { get; set; }
     }
 }
