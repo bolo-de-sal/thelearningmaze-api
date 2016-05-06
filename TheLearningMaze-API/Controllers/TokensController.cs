@@ -16,26 +16,6 @@ namespace TheLearningMaze_API.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/Tokens
-        public IQueryable<Token> GetTokens()
-        {
-            return db.Tokens;
-        }
-
-        // GET: api/Tokens/5
-        [ResponseType(typeof(Token))]
-        public IHttpActionResult GetToken(int id)
-        {
-            Token token = db.Tokens.Find(id);
-            if (token == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(token);
-        }
-
-        // GET: api/Tokens/generateToken
         [HttpGet]
         [ResponseType(typeof(Token))]
         [Route("api/Tokens/generateToken")]
@@ -52,10 +32,29 @@ namespace TheLearningMaze_API.Controllers
             db.Tokens.Add(token);
             db.SaveChanges();
 
-            //return CreatedAtRoute("DefaultApi", new { id = token.codToken }, token);
             return Ok(token);
         }
 
+        //// GET: api/Tokens
+        //public IQueryable<Token> GetTokens()
+        //{
+        //    return db.Tokens;
+        //}
+
+        //// GET: api/Tokens/5
+        //[ResponseType(typeof(Token))]
+        //public IHttpActionResult GetToken(int id)
+        //{
+        //    Token token = db.Tokens.Find(id);
+        //    if (token == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return Ok(token);
+        //}
+
+        // GET: api/Tokens/generateToken
         //// PUT: api/Tokens/5
         //[ResponseType(typeof(void))]
         //public IHttpActionResult PutToken(int id, Token token)

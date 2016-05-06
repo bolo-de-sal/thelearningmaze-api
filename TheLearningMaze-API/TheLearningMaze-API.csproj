@@ -267,6 +267,7 @@
     <Compile Include="Controllers\TipoEventoesController.cs" />
     <Compile Include="Controllers\TipoQuestaosController.cs" />
     <Compile Include="Controllers\TokensController.cs" />
+    <Compile Include="Filters\ProfAuthFilter.cs" />
     <Compile Include="Filters\ApiAuthFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -292,6 +293,7 @@
     <Compile Include="Models\TipoEvento.cs" />
     <Compile Include="Models\TipoQuestao.cs" />
     <Compile Include="Models\Token.cs" />
+    <Compile Include="Models\TokenProf.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 
 namespace TheLearningMaze_API.Models
 {
@@ -18,6 +15,7 @@ namespace TheLearningMaze_API.Models
 
         public String email { get; set; }
 
+        [IgnoreDataMember]
         public Byte[] senha { get; set; }
 
         public String idSenac { get; set; }

@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Web;
 using System.Web.Http;
@@ -14,14 +16,14 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Filters
 {
-    public class ApiAuthFilter : AuthorizationFilterAttribute
+    public class ProfAuthFilter : AuthorizationFilterAttribute
     {
-        private bool v = true;
+        //private bool v = true;
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        public ApiAuthFilter(bool v)
+        public ProfAuthFilter()
         {
-            this.v = v;
+            /*this.v = v*/;
         }
 
         protected bool OnAuthorizeUser(string token, HttpActionContext actionContext)
@@ -50,11 +52,19 @@ namespace TheLearningMaze_API.Filters
             // Verifica se o cabeçalho contém "Authorization"
             if (actionContext.Request.Headers.Authorization != null)
             {
-                string token = actionContext.Request.Headers.Authorization.ToString().Substring(6); //Retira "Token "
+                string token = actionContext.Request.Headers.Authorization.ToString();
+
+                //// Faz decode do Token para extrair codProfessor e token original
+                //byte[] data = Convert.FromBase64String(token);
+                //string decoded = Encoding.ASCII.GetString(data);
+                //TokenProf tokenProf = JsonConvert.DeserializeObject<TokenProf>(decoded);
+
+                TokenProf tokenProf = new TokenProf().DecodeToken(token);
+
                 Token tokenEntity = db.Tokens
-                                        .Where(t => t.token == token)
+                                        .Where(t => t.token == tokenProf.token)
                                         .FirstOrDefault();
-                if (tokenEntity != null && tokenEntity.expiraEm >= DateTime.Now)
+                if (tokenEntity != null && tokenEntity.expiraEm >= DateTime.Now && tokenProf.codProfessor == tokenEntity.codProfessor)
                 {
                     // Adiciona 15 minutos ao tempo de expiração
                     tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
