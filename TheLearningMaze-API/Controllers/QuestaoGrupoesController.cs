@@ -12,21 +12,21 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    public class QuestaoGrupoesController : ApiController
+    public class QuestaoGruposController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/QuestaoGrupoes
-        public IQueryable<QuestaoGrupo> GetQuestaoGrupoes()
+        // GET: api/QuestaoGrupos
+        public IQueryable<QuestaoGrupo> GetQuestaoGrupos()
         {
-            return db.QuestaoGrupoes;
+            return db.QuestaoGrupos;
         }
 
-        // GET: api/QuestaoGrupoes/5
+        // GET: api/QuestaoGrupos/5
         [ResponseType(typeof(QuestaoGrupo))]
         public IHttpActionResult GetQuestaoGrupo(int id)
         {
-            QuestaoGrupo questaoGrupo = db.QuestaoGrupoes.Find(id);
+            QuestaoGrupo questaoGrupo = db.QuestaoGrupos.Find(id);
             if (questaoGrupo == null)
             {
                 return NotFound();
@@ -35,7 +35,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(questaoGrupo);
         }
 
-        // PUT: api/QuestaoGrupoes/5
+        // PUT: api/QuestaoGrupos/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutQuestaoGrupo(int id, QuestaoGrupo questaoGrupo)
         {
@@ -70,7 +70,7 @@ namespace TheLearningMaze_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/QuestaoGrupoes
+        // POST: api/QuestaoGrupos
         [ResponseType(typeof(QuestaoGrupo))]
         public IHttpActionResult PostQuestaoGrupo(QuestaoGrupo questaoGrupo)
         {
@@ -79,23 +79,23 @@ namespace TheLearningMaze_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.QuestaoGrupoes.Add(questaoGrupo);
+            db.QuestaoGrupos.Add(questaoGrupo);
             db.SaveChanges();
 
             return CreatedAtRoute("DefaultApi", new { id = questaoGrupo.codQuestao }, questaoGrupo);
         }
 
-        // DELETE: api/QuestaoGrupoes/5
+        // DELETE: api/QuestaoGrupos/5
         [ResponseType(typeof(QuestaoGrupo))]
         public IHttpActionResult DeleteQuestaoGrupo(int id)
         {
-            QuestaoGrupo questaoGrupo = db.QuestaoGrupoes.Find(id);
+            QuestaoGrupo questaoGrupo = db.QuestaoGrupos.Find(id);
             if (questaoGrupo == null)
             {
                 return NotFound();
             }
 
-            db.QuestaoGrupoes.Remove(questaoGrupo);
+            db.QuestaoGrupos.Remove(questaoGrupo);
             db.SaveChanges();
 
             return Ok(questaoGrupo);
@@ -112,7 +112,7 @@ namespace TheLearningMaze_API.Controllers
 
         private bool QuestaoGrupoExists(int id)
         {
-            return db.QuestaoGrupoes.Count(e => e.codQuestao == id) > 0;
+            return db.QuestaoGrupos.Count(e => e.codQuestao == id) > 0;
         }
     }
 }

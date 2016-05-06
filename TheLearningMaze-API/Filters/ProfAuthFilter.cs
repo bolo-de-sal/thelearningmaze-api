@@ -54,11 +54,7 @@ namespace TheLearningMaze_API.Filters
             {
                 string token = actionContext.Request.Headers.Authorization.ToString();
 
-                //// Faz decode do Token para extrair codProfessor e token original
-                //byte[] data = Convert.FromBase64String(token);
-                //string decoded = Encoding.ASCII.GetString(data);
-                //TokenProf tokenProf = JsonConvert.DeserializeObject<TokenProf>(decoded);
-
+                // Faz decode do Token para extrair codProfessor e token original
                 TokenProf tokenProf = new TokenProf().DecodeToken(token);
 
                 Token tokenEntity = db.Tokens

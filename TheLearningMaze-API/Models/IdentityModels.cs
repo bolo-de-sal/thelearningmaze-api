@@ -59,11 +59,11 @@ namespace TheLearningMaze_API.Models
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.QuestaoEvento> QuestaoEventoes { get; set; }
 
-        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Grupo> Grupoes { get; set; }
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Grupo> Grupos { get; set; }
 
-        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.QuestaoGrupo> QuestaoGrupoes { get; set; }
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.QuestaoGrupo> QuestaoGrupos { get; set; }
 
-        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.ParticipanteGrupo> ParticipanteGrupoes { get; set; }
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.ParticipanteGrupo> ParticipanteGrupos { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.EventoAssunto> EventoAssuntoes { get; set; }
     }

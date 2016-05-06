@@ -1,32 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using TheLearningMaze_API.Filters;
 using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    public class GrupoesController : ApiController
+    [ProfAuthFilter]
+    public class GruposController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/Grupoes
-        public IQueryable<Grupo> GetGrupoes()
+        // GET: api/Grupos
+        public IQueryable<Grupo> GetGrupos()
         {
-            return db.Grupoes;
+            return db.Grupos;
         }
 
-        // GET: api/Grupoes/5
+        // GET: api/Grupos/5
         [ResponseType(typeof(Grupo))]
         public IHttpActionResult GetGrupo(int id)
         {
-            Grupo grupo = db.Grupoes.Find(id);
+            Grupo grupo = db.Grupos.Find(id);
             if (grupo == null)
             {
                 return NotFound();
@@ -35,7 +33,20 @@ namespace TheLearningMaze_API.Controllers
             return Ok(grupo);
         }
 
-        // PUT: api/Grupoes/5
+        // GET: api/Grupos/5/Assunto
+        [HttpGet]
+        [ResponseType(typeof(Assunto))]
+        [Route("api/Grupos/{id}/Assunto")]
+        public IHttpActionResult GetGrupoAssunto(int id)
+        {
+            Grupo grupo = db.Grupos.Find(id);
+            Assunto assunto = db.Assuntoes.Find(grupo.codAssunto);
+            if (assunto == null)
+                return NotFound();
+            return Ok(assunto);
+        }
+
+        // PUT: api/Grupos/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutGrupo(int id, Grupo grupo)
         {
@@ -70,7 +81,7 @@ namespace TheLearningMaze_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/Grupoes
+        // POST: api/Grupos
         [ResponseType(typeof(Grupo))]
         public IHttpActionResult PostGrupo(Grupo grupo)
         {
@@ -79,23 +90,23 @@ namespace TheLearningMaze_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Grupoes.Add(grupo);
+            db.Grupos.Add(grupo);
             db.SaveChanges();
 
             return CreatedAtRoute("DefaultApi", new { id = grupo.codGrupo }, grupo);
         }
 
-        // DELETE: api/Grupoes/5
+        // DELETE: api/Grupos/5
         [ResponseType(typeof(Grupo))]
         public IHttpActionResult DeleteGrupo(int id)
         {
-            Grupo grupo = db.Grupoes.Find(id);
+            Grupo grupo = db.Grupos.Find(id);
             if (grupo == null)
             {
                 return NotFound();
             }
 
-            db.Grupoes.Remove(grupo);
+            db.Grupos.Remove(grupo);
             db.SaveChanges();
 
             return Ok(grupo);
@@ -112,7 +123,7 @@ namespace TheLearningMaze_API.Controllers
 
         private bool GrupoExists(int id)
         {
-            return db.Grupoes.Count(e => e.codGrupo == id) > 0;
+            return db.Grupos.Count(e => e.codGrupo == id) > 0;
         }
     }
 }
