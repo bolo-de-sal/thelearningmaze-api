@@ -253,7 +253,7 @@
     <Compile Include="Controllers\AssuntoesController.cs" />
     <Compile Include="Controllers\CursoesController.cs" />
     <Compile Include="Controllers\EventoAssuntoesController.cs" />
-    <Compile Include="Controllers\EventoesController.cs" />
+    <Compile Include="Controllers\EventosController.cs" />
     <Compile Include="Controllers\GruposController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImagemsController.cs" />

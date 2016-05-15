@@ -12,21 +12,21 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    public class TipoEventoesController : ApiController
+    public class TipoEventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/TipoEventoes
-        public IQueryable<TipoEvento> GetTipoEventoes()
+        // GET: api/TipoEventos
+        public IQueryable<TipoEvento> GetTipoEventos()
         {
-            return db.TipoEventoes;
+            return db.TipoEventos;
         }
 
-        // GET: api/TipoEventoes/5
+        // GET: api/TipoEventos/5
         [ResponseType(typeof(TipoEvento))]
         public IHttpActionResult GetTipoEvento(byte id)
         {
-            TipoEvento tipoEvento = db.TipoEventoes.Find(id);
+            TipoEvento tipoEvento = db.TipoEventos.Find(id);
             if (tipoEvento == null)
             {
                 return NotFound();
@@ -35,7 +35,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(tipoEvento);
         }
 
-        // PUT: api/TipoEventoes/5
+        // PUT: api/TipoEventos/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutTipoEvento(byte id, TipoEvento tipoEvento)
         {
@@ -70,7 +70,7 @@ namespace TheLearningMaze_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/TipoEventoes
+        // POST: api/TipoEventos
         [ResponseType(typeof(TipoEvento))]
         public IHttpActionResult PostTipoEvento(TipoEvento tipoEvento)
         {
@@ -79,7 +79,7 @@ namespace TheLearningMaze_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.TipoEventoes.Add(tipoEvento);
+            db.TipoEventos.Add(tipoEvento);
 
             try
             {
@@ -100,17 +100,17 @@ namespace TheLearningMaze_API.Controllers
             return CreatedAtRoute("DefaultApi", new { id = tipoEvento.codTipoEvento }, tipoEvento);
         }
 
-        // DELETE: api/TipoEventoes/5
+        // DELETE: api/TipoEventos/5
         [ResponseType(typeof(TipoEvento))]
         public IHttpActionResult DeleteTipoEvento(byte id)
         {
-            TipoEvento tipoEvento = db.TipoEventoes.Find(id);
+            TipoEvento tipoEvento = db.TipoEventos.Find(id);
             if (tipoEvento == null)
             {
                 return NotFound();
             }
 
-            db.TipoEventoes.Remove(tipoEvento);
+            db.TipoEventos.Remove(tipoEvento);
             db.SaveChanges();
 
             return Ok(tipoEvento);
@@ -127,7 +127,7 @@ namespace TheLearningMaze_API.Controllers
 
         private bool TipoEventoExists(byte id)
         {
-            return db.TipoEventoes.Count(e => e.codTipoEvento == id) > 0;
+            return db.TipoEventos.Count(e => e.codTipoEvento == id) > 0;
         }
     }
 }

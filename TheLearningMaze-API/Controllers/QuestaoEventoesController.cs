@@ -12,21 +12,21 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    public class QuestaoEventoesController : ApiController
+    public class QuestaoEventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/QuestaoEventoes
-        public IQueryable<QuestaoEvento> GetQuestaoEventoes()
+        // GET: api/QuestaoEventos
+        public IQueryable<QuestaoEvento> GetQuestaoEventos()
         {
-            return db.QuestaoEventoes;
+            return db.QuestaoEventos;
         }
 
-        // GET: api/QuestaoEventoes/5
+        // GET: api/QuestaoEventos/5
         [ResponseType(typeof(QuestaoEvento))]
         public IHttpActionResult GetQuestaoEvento(int id)
         {
-            QuestaoEvento questaoEvento = db.QuestaoEventoes.Find(id);
+            QuestaoEvento questaoEvento = db.QuestaoEventos.Find(id);
             if (questaoEvento == null)
             {
                 return NotFound();
@@ -35,7 +35,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(questaoEvento);
         }
 
-        // PUT: api/QuestaoEventoes/5
+        // PUT: api/QuestaoEventos/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutQuestaoEvento(int id, QuestaoEvento questaoEvento)
         {
@@ -70,7 +70,7 @@ namespace TheLearningMaze_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/QuestaoEventoes
+        // POST: api/QuestaoEventos
         [ResponseType(typeof(QuestaoEvento))]
         public IHttpActionResult PostQuestaoEvento(QuestaoEvento questaoEvento)
         {
@@ -79,23 +79,23 @@ namespace TheLearningMaze_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.QuestaoEventoes.Add(questaoEvento);
+            db.QuestaoEventos.Add(questaoEvento);
             db.SaveChanges();
 
             return CreatedAtRoute("DefaultApi", new { id = questaoEvento.codEvento }, questaoEvento);
         }
 
-        // DELETE: api/QuestaoEventoes/5
+        // DELETE: api/QuestaoEventos/5
         [ResponseType(typeof(QuestaoEvento))]
         public IHttpActionResult DeleteQuestaoEvento(int id)
         {
-            QuestaoEvento questaoEvento = db.QuestaoEventoes.Find(id);
+            QuestaoEvento questaoEvento = db.QuestaoEventos.Find(id);
             if (questaoEvento == null)
             {
                 return NotFound();
             }
 
-            db.QuestaoEventoes.Remove(questaoEvento);
+            db.QuestaoEventos.Remove(questaoEvento);
             db.SaveChanges();
 
             return Ok(questaoEvento);
@@ -112,7 +112,7 @@ namespace TheLearningMaze_API.Controllers
 
         private bool QuestaoEventoExists(int id)
         {
-            return db.QuestaoEventoes.Count(e => e.codEvento == id) > 0;
+            return db.QuestaoEventos.Count(e => e.codEvento == id) > 0;
         }
     }
 }
