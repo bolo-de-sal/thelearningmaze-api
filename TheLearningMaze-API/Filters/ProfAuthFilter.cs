@@ -43,7 +43,7 @@ namespace TheLearningMaze_API.Filters
 
         protected void HandleUnauthorizedRequest(HttpActionContext actionContext)
         {
-            actionContext.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+            actionContext.Response = new HttpResponseMessage(HttpStatusCode.BadRequest);
             return;
         }
 
