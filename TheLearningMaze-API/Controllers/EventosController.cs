@@ -87,7 +87,6 @@ namespace TheLearningMaze_API.Controllers
             db.Entry(evento).State = EntityState.Modified;
 
             // Sorteia ordem
-            
             IEnumerable<Grupo> grupos = db.Grupos
                 .Where(g => g.codEvento == evento.codEvento)
                 .OrderBy(x => Guid.NewGuid());
