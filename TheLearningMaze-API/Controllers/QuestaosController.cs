@@ -79,20 +79,35 @@ namespace TheLearningMaze_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/Questaos
-        [ResponseType(typeof(Questao))]
-        public IHttpActionResult PostQuestao(Questao questao)
+        // POST: /api/Questaos/Lancar
+        [HttpPost]
+        [Route("api/Questaos/LancarPergunta")]
+        public IHttpActionResult LancarPergunta(Questao qst)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
+            // Seleciona campos para lancar questao
+            Questao questao = db.Questaos.Find(qst.codQuestao);
+            if (questao == null) return NotFound();
             db.Questaos.Add(questao);
-            db.SaveChanges();
 
-            return CreatedAtRoute("DefaultApi", new { id = questao.codQuestao }, questao);
+            db.SaveChanges();
+            
+            return Ok(questao);
         }
+
+        //// POST: api/Questaos
+        //[ResponseType(typeof(Questao))]
+        //public IHttpActionResult PostQuestao(Questao questao)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    db.Questaos.Add(questao);
+        //    db.SaveChanges();
+
+        //    return CreatedAtRoute("DefaultApi", new { id = questao.codQuestao }, questao);
+        //}
 
         // DELETE: api/Questaos/5
         [ResponseType(typeof(Questao))]
