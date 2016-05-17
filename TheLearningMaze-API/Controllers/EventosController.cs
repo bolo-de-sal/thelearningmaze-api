@@ -22,7 +22,14 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/Paged/{page}/{perPage}")]
         public IHttpActionResult GetEventosPaginated(int page = 0, int perPage = 10)
         {
-            var eventos = db.Eventos.OrderByDescending(d => d.data);
+            string token = actionContext.Request.Headers.Authorization.ToString();
+
+            // Faz decode do Token para extrair codProfessor e token original
+            TokenProf tokenProf = new TokenProf().DecodeToken(token);
+
+            var eventos = db.Eventos
+                .Where(e => e.codProfessor == tokenProf.codProfessor)
+                .OrderByDescending(d => d.data);
             int totalEventos = eventos.Count();
             int totalPaginas = (int)Math.Ceiling((double)totalEventos / perPage);
 
