@@ -78,9 +78,8 @@ namespace TheLearningMaze_API.Filters
                     }
                     return HttpStatusCodeCustom.TokenExpired; //Se token existe mas expirou
                 }
-
-                return HttpStatusCodeCustom.Unauthorized; //Se token não existe
             }
+            return HttpStatusCodeCustom.Unauthorized; //Se token não existe
         }
     }
 }
