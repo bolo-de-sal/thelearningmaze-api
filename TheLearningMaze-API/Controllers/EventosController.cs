@@ -60,6 +60,24 @@ namespace TheLearningMaze_API.Controllers
             return Ok(evento);
         }
 
+        // GET: api/Eventos/Ativo
+        [ResponseType(typeof(Evento))]
+        [Route("api/Eventos/Ativo")]
+        public IHttpActionResult GetEventoAtivo()
+        {
+            string token = Request.Headers.Authorization.ToString();
+
+            // Faz decode do Token para extrair codProfessor e token original
+            TokenProf tokenProf = new TokenProf().DecodeToken(token);
+
+            var evento = db.Eventos
+                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "E")
+                .OrderByDescending(d => d.data)
+                .FirstOrDefault();
+
+            return Ok(evento);
+        }
+
         // GET: api/Eventos/5/Grupos
         [ResponseType(typeof(Grupo))]
         [Route("api/Eventos/{id}/Grupos")]
