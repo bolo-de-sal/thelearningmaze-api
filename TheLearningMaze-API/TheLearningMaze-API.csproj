@@ -257,6 +257,7 @@
     <Compile Include="Controllers\ProfessorsController.cs" />
     <Compile Include="Controllers\QuestaosController.cs" />
     <Compile Include="Controllers\TokensController.cs" />
+    <Compile Include="Custom\HttpStatusCodeCustom.cs" />
     <Compile Include="Filters\ProfAuthFilter.cs" />
     <Compile Include="Filters\ApiAuthFilter.cs" />
     <Compile Include="Global.asax.cs">
