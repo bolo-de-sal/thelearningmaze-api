@@ -14,12 +14,6 @@ namespace TheLearningMaze_API.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/Grupos
-        public IQueryable<Grupo> GetGrupos()
-        {
-            return db.Grupos;
-        }
-
         // GET: api/Grupos/5
         [ResponseType(typeof(Grupo))]
         public IHttpActionResult GetGrupo(int id)
@@ -46,71 +40,80 @@ namespace TheLearningMaze_API.Controllers
             return Ok(assunto);
         }
 
-        // PUT: api/Grupos/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutGrupo(int id, Grupo grupo)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
-            if (id != grupo.codGrupo)
-            {
-                return BadRequest();
-            }
 
-            db.Entry(grupo).State = EntityState.Modified;
+        //// GET: api/Grupos
+        //public IQueryable<Grupo> GetGrupos()
+        //{
+        //    return db.Grupos;
+        //}
 
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GrupoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
+        //// PUT: api/Grupos/5
+        //[ResponseType(typeof(void))]
+        //public IHttpActionResult PutGrupo(int id, Grupo grupo)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-        // POST: api/Grupos
-        [ResponseType(typeof(Grupo))]
-        public IHttpActionResult PostGrupo(Grupo grupo)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //    if (id != grupo.codGrupo)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            db.Grupos.Add(grupo);
-            db.SaveChanges();
+        //    db.Entry(grupo).State = EntityState.Modified;
 
-            return CreatedAtRoute("DefaultApi", new { id = grupo.codGrupo }, grupo);
-        }
+        //    try
+        //    {
+        //        db.SaveChanges();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!GrupoExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-        // DELETE: api/Grupos/5
-        [ResponseType(typeof(Grupo))]
-        public IHttpActionResult DeleteGrupo(int id)
-        {
-            Grupo grupo = db.Grupos.Find(id);
-            if (grupo == null)
-            {
-                return NotFound();
-            }
+        //    return StatusCode(HttpStatusCode.NoContent);
+        //}
 
-            db.Grupos.Remove(grupo);
-            db.SaveChanges();
+        //// POST: api/Grupos
+        //[ResponseType(typeof(Grupo))]
+        //public IHttpActionResult PostGrupo(Grupo grupo)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            return Ok(grupo);
-        }
+        //    db.Grupos.Add(grupo);
+        //    db.SaveChanges();
+
+        //    return CreatedAtRoute("DefaultApi", new { id = grupo.codGrupo }, grupo);
+        //}
+
+        //// DELETE: api/Grupos/5
+        //[ResponseType(typeof(Grupo))]
+        //public IHttpActionResult DeleteGrupo(int id)
+        //{
+        //    Grupo grupo = db.Grupos.Find(id);
+        //    if (grupo == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    db.Grupos.Remove(grupo);
+        //    db.SaveChanges();
+
+        //    return Ok(grupo);
+        //}
 
         protected override void Dispose(bool disposing)
         {

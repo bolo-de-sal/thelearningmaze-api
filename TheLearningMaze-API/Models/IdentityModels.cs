@@ -41,7 +41,7 @@ namespace TheLearningMaze_API.Models
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Status> Status { get; set; }
 
-        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.TipoEvento> TipoEventoes { get; set; }
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.TipoEvento> TipoEventos { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Curso> Cursoes { get; set; }
 
@@ -55,9 +55,9 @@ namespace TheLearningMaze_API.Models
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Participante> Participantes { get; set; }
 
-        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Evento> Eventoes { get; set; }
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Evento> Eventos { get; set; }
 
-        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.QuestaoEvento> QuestaoEventoes { get; set; }
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.QuestaoEvento> QuestaoEventos { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.Grupo> Grupos { get; set; }
 
@@ -66,5 +66,7 @@ namespace TheLearningMaze_API.Models
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.ParticipanteGrupo> ParticipanteGrupos { get; set; }
 
         public System.Data.Entity.DbSet<TheLearningMaze_API.Models.EventoAssunto> EventoAssuntoes { get; set; }
+
+        public System.Data.Entity.DbSet<TheLearningMaze_API.Models.MasterEventosOrdem> MasterEventosOrdem { get;  set; }
     }
 }
