@@ -13,7 +13,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    //[ProfAuthFilter]
+    [ProfAuthFilter]
     public class EventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -22,7 +22,7 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/Paged/{page}/{perPage}")]
         public IHttpActionResult GetEventosPaginated(int page = 0, int perPage = 10)
         {
-            string token = actionContext.Request.Headers.Authorization.ToString();
+            string token = Request.Headers.Authorization.ToString();
 
             // Faz decode do Token para extrair codProfessor e token original
             TokenProf tokenProf = new TokenProf().DecodeToken(token);
@@ -82,6 +82,36 @@ namespace TheLearningMaze_API.Controllers
 
         }
 
+
+        // GET: /api/Eventos/5/Acertos
+        [Route("api/Eventos/{id}/Acertos")]
+        public IHttpActionResult GetAcertosGrupos(int id)
+        {
+            Evento evento = db.Eventos.Find(id);
+
+            List<Grupo> grupos = db.Grupos
+                .Where(g => g.codEvento == evento.codEvento)
+                .ToList();
+
+            List<Object> retorno = new List<Object>();
+
+            foreach(Grupo grupo in grupos)
+            {
+                List<QuestaoGrupo> qgs = db.QuestaoGrupos
+                                            .Where(qg => qg.codGrupo == grupo.codGrupo)
+                                            .ToList();
+                int i = 0;
+                foreach(QuestaoGrupo qg in qgs)
+                {
+                    if (qg.correta) i++;
+                }
+                var acertosGrupo = new { codGrupo = grupo.codGrupo, acertos = i };
+                retorno.Add(acertosGrupo);
+            }
+
+            return Ok(retorno);
+        }
+
         // POST: /api/Eventos/Iniciar
         [HttpPost]
         [Route("api/Eventos/Iniciar")]
@@ -90,7 +120,9 @@ namespace TheLearningMaze_API.Controllers
             // Seleciona evento e altera status
             Evento evento = db.Eventos.Find(ev.codEvento);
             if (evento == null) return NotFound();
+            if (evento.codStatus == "E" && evento.codStatus == "F") return BadRequest();
             evento.codStatus = "E";
+            evento.data = DateTime.Now;
             db.Entry(evento).State = EntityState.Modified;
 
             // Sorteia ordem

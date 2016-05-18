@@ -40,7 +40,7 @@ namespace TheLearningMaze_API.Controllers
         public IHttpActionResult PutQuestao(int id, Questao questao, Evento ev)
         {
             Evento evento = db.Eventos.Find(ev.codEvento);
-            if (evento.codStatus == "E") && 
+            if (evento.codStatus == "E")
             //Caso o status do evento seja “E” e ainda existam questões cadastradas
             //para o evento que não foram respondidas
             {
