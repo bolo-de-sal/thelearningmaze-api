@@ -100,7 +100,6 @@ namespace TheLearningMaze_API.Controllers
 
         }
 
-
         // GET: /api/Eventos/5/Acertos
         [Route("api/Eventos/{id}/Acertos")]
         public IHttpActionResult GetAcertosGrupos(int id)
@@ -163,6 +162,20 @@ namespace TheLearningMaze_API.Controllers
             db.SaveChanges();
 
             return Ok(retorno);
+        }
+
+        [HttpPost]
+        [Route("api/Eventos/Encerrar")]
+        public IHttpActionResult EncerrarEvento(Evento ev)
+        {
+            // Seleciona evento e altera status
+            Evento evento = db.Eventos.Find(ev.codEvento);
+            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+            if (evento.codStatus != "E") return Content(HttpStatusCode.BadRequest, new { message = "Evento já encerrado ou não está em execução" });
+            evento.codStatus = "F";
+            db.Entry(evento).State = EntityState.Modified;
+
+            return Ok(evento);
         }
 
         //// GET: api/Eventos
