@@ -174,6 +174,7 @@ namespace TheLearningMaze_API.Controllers
             if (evento.codStatus != "E") return Content(HttpStatusCode.BadRequest, new { message = "Evento já encerrado ou não está em execução" });
             evento.codStatus = "F";
             db.Entry(evento).State = EntityState.Modified;
+            db.SaveChanges();
 
             return Ok(evento);
         }
