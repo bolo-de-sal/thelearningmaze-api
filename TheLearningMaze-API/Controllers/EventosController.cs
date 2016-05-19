@@ -52,10 +52,8 @@ namespace TheLearningMaze_API.Controllers
         public IHttpActionResult GetEvento(int id)
         {
             Evento evento = db.Eventos.Find(id);
-            if (evento == null)
-            {
-                return NotFound();
-            }
+
+            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             return Ok(evento);
         }
@@ -75,6 +73,8 @@ namespace TheLearningMaze_API.Controllers
                 .OrderByDescending(d => d.data)
                 .FirstOrDefault();
 
+            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+
             return Ok(evento);
         }
 
@@ -84,17 +84,11 @@ namespace TheLearningMaze_API.Controllers
         public IHttpActionResult GetGruposEvento(int id)
         {
             Evento evento = db.Eventos.Find(id);
-            if (evento == null)
-            {
-                return NotFound();
-            }
+            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             IEnumerable<Grupo> grupos = db.Grupos
                 .Where(g => g.codEvento == evento.codEvento);
-            if (grupos == null)
-            {
-                return NotFound();
-            }
+            if (grupos == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
 
             return Ok(grupos);
 
@@ -105,6 +99,9 @@ namespace TheLearningMaze_API.Controllers
         public IHttpActionResult GetAcertosGrupos(int id)
         {
             Evento evento = db.Eventos.Find(id);
+
+            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+            if (evento.codStatus == "A" && evento.codStatus == "C") return Content(HttpStatusCode.BadRequest, new { message = "Evento ainda não foi iniciado" });
 
             List<Grupo> grupos = db.Grupos
                 .Where(g => g.codEvento == evento.codEvento)
@@ -136,8 +133,8 @@ namespace TheLearningMaze_API.Controllers
         {
             // Seleciona evento e altera status
             Evento evento = db.Eventos.Find(ev.codEvento);
-            if (evento == null) return NotFound();
-            if (evento.codStatus == "E" && evento.codStatus == "F") return BadRequest();
+            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+            if (evento.codStatus == "E" && evento.codStatus == "F") return Content(HttpStatusCode.BadRequest, new { message = "Evento já em execução ou finalizado" });
             evento.codStatus = "E";
             evento.data = DateTime.Now;
             db.Entry(evento).State = EntityState.Modified;
@@ -147,10 +144,15 @@ namespace TheLearningMaze_API.Controllers
                 .Where(g => g.codEvento == evento.codEvento)
                 .OrderBy(x => Guid.NewGuid());
 
+            if (grupos.Count() < 2) return Content(HttpStatusCode.BadRequest, new { message = "Evento não tem grupos suficientes para iniciar" });
+
             List<MasterEventosOrdem> retorno = new List<MasterEventosOrdem>();
             Byte i = 0;
             foreach(Grupo grupo in grupos)
             {
+                ParticipanteGrupo pg = db.ParticipanteGrupos.Where(p => p.codGrupo == grupo.codGrupo).FirstOrDefault();
+                if (pg == null) return Content(HttpStatusCode.BadRequest, new { message = "Grupo não contém participantes" });
+
                 MasterEventosOrdem ordem = new MasterEventosOrdem();
                 ordem.codGrupo = grupo.codGrupo;
                 ordem.ordem = i;
@@ -164,6 +166,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        // POST: /api/Eventos/Encerrar
         [HttpPost]
         [Route("api/Eventos/Encerrar")]
         public IHttpActionResult EncerrarEvento(Evento ev)
@@ -178,78 +181,6 @@ namespace TheLearningMaze_API.Controllers
 
             return Ok(evento);
         }
-
-        //// GET: api/Eventos
-        //public IQueryable<Evento> GetEventos()
-        //{
-        //    return db.Eventos;
-        //}
-
-        //// PUT: api/Eventos/5
-        //[ResponseType(typeof(void))]
-        //public IHttpActionResult PutEvento(int id, Evento evento)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    if (id != evento.codEvento)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    db.Entry(evento).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        db.SaveChanges();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!EventoExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return StatusCode(HttpStatusCode.NoContent);
-        //}
-
-        //// POST: api/Eventos
-        //[ResponseType(typeof(Evento))]
-        //public IHttpActionResult PostEvento(Evento evento)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    db.Eventos.Add(evento);
-        //    db.SaveChanges();
-
-        //    return CreatedAtRoute("DefaultApi", new { id = evento.codEvento }, evento);
-        //}
-
-        //// DELETE: api/Eventos/5
-        //[ResponseType(typeof(Evento))]
-        //public IHttpActionResult DeleteEvento(int id)
-        //{
-        //    Evento evento = db.Eventos.Find(id);
-        //    if (evento == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    db.Eventos.Remove(evento);
-        //    db.SaveChanges();
-
-        //    return Ok(evento);
-        //}
 
         protected override void Dispose(bool disposing)
         {
