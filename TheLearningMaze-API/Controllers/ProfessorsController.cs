@@ -71,6 +71,8 @@ namespace TheLearningMaze_API.Controllers
                 }
                 else
                 {
+                    // throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                    // { Content = new StringContent("E-mail e/ou senha incorretos") });
                     return Content(HttpStatusCode.Unauthorized, new { message = "E-mail e/ou senha incorretos" });
                 }
             }
