@@ -8,14 +8,19 @@ namespace TheLearningMaze_API.Hubs
 {
     public class EventoHub : Hub
     {
-        public void LancarPergunta(string pergunta)
+        public void JoinEvento(string identificador)
         {
-            Clients.Others.lancarPergunta(pergunta);
+            this.Groups.Add(this.Context.ConnectionId, identificador);
         }
 
-        public void ResponderPergunta()
+        public void LancarPergunta(string identificador, string pergunta)
         {
-            Clients.Others.responderPergunta();
+            Clients.OthersInGroup(identificador).lancarPergunta(pergunta);
+        }
+
+        public void ResponderPergunta(string identificador)
+        {
+            Clients.OthersInGroup(identificador).responderPergunta();
         }
     }
 }
