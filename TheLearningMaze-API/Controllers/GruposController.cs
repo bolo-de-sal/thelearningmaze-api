@@ -34,13 +34,19 @@ namespace TheLearningMaze_API.Controllers
         public IHttpActionResult GetGrupoAssunto(int id)
         {
             Grupo grupo = db.Grupos.Find(id);
-            Assunto assunto = db.Assuntoes.Find(grupo.codAssunto);
-            if (assunto == null)
-                return NotFound();
+            if (grupo == null) return Content(HttpStatusCode.NotFound, new { message = "Não foi encontrado grupo especificado" });
+            Assunto assunto = db.Assuntos.Find(grupo.codAssunto);
+            if (assunto == null) return Content(HttpStatusCode.NotFound, new { message = "Não foi encontrado assunto especificado" });
             return Ok(assunto);
         }
 
-
+        // GET: api/Grupos/5/Integrantes
+        [HttpGet]
+        [Route("api/Grupos/{id}/Participantes")]
+        public IHttpActionResult GetGrupoParticipantes(int id)
+        {
+            return Ok();
+        }
 
         //// GET: api/Grupos
         //public IQueryable<Grupo> GetGrupos()

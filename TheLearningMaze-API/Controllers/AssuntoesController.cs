@@ -12,21 +12,21 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    public class AssuntoesController : ApiController
+    public class AssuntosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/Assuntoes
-        public IQueryable<Assunto> GetAssuntoes()
+        // GET: api/Assuntos
+        public IQueryable<Assunto> GetAssuntos()
         {
-            return db.Assuntoes;
+            return db.Assuntos;
         }
 
-        // GET: api/Assuntoes/5
+        // GET: api/Assuntos/5
         [ResponseType(typeof(Assunto))]
         public IHttpActionResult GetAssunto(int id)
         {
-            Assunto assunto = db.Assuntoes.Find(id);
+            Assunto assunto = db.Assuntos.Find(id);
             if (assunto == null)
             {
                 return NotFound();
@@ -35,7 +35,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(assunto);
         }
 
-        // PUT: api/Assuntoes/5
+        // PUT: api/Assuntos/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutAssunto(int id, Assunto assunto)
         {
@@ -70,7 +70,7 @@ namespace TheLearningMaze_API.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/Assuntoes
+        // POST: api/Assuntos
         [ResponseType(typeof(Assunto))]
         public IHttpActionResult PostAssunto(Assunto assunto)
         {
@@ -79,23 +79,23 @@ namespace TheLearningMaze_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Assuntoes.Add(assunto);
+            db.Assuntos.Add(assunto);
             db.SaveChanges();
 
             return CreatedAtRoute("DefaultApi", new { id = assunto.codAssunto }, assunto);
         }
 
-        // DELETE: api/Assuntoes/5
+        // DELETE: api/Assuntos/5
         [ResponseType(typeof(Assunto))]
         public IHttpActionResult DeleteAssunto(int id)
         {
-            Assunto assunto = db.Assuntoes.Find(id);
+            Assunto assunto = db.Assuntos.Find(id);
             if (assunto == null)
             {
                 return NotFound();
             }
 
-            db.Assuntoes.Remove(assunto);
+            db.Assuntos.Remove(assunto);
             db.SaveChanges();
 
             return Ok(assunto);
@@ -112,7 +112,7 @@ namespace TheLearningMaze_API.Controllers
 
         private bool AssuntoExists(int id)
         {
-            return db.Assuntoes.Count(e => e.codAssunto == id) > 0;
+            return db.Assuntos.Count(e => e.codAssunto == id) > 0;
         }
     }
 }
