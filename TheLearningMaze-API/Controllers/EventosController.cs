@@ -13,7 +13,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    [ProfAuthFilter]
+    //[ProfAuthFilter]
     public class EventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -91,6 +91,37 @@ namespace TheLearningMaze_API.Controllers
             if (grupos == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
 
             return Ok(grupos);
+
+        }
+
+        [Route("api/Eventos/{id}/GruposCompleto")]
+        public IHttpActionResult GetGruposFull(int id)
+        {
+            Evento evento = db.Eventos.Find(id);
+            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+
+            List<Grupo> grupos = db.Grupos
+                .Where(g => g.codEvento == evento.codEvento)
+                .ToList();
+            if (grupos == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
+
+            List<Object> retorno = new List<Object>();
+
+            foreach(Grupo grupo in grupos)
+            {
+                List<ParticipanteGrupo> pg = db.ParticipanteGrupos
+                                                .Where(p => p.codGrupo == grupo.codGrupo)
+                                                .ToList();
+                if (pg.Count == 0) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem participantes" });
+                Assunto assunto = db.Assuntos
+                                    .Where(a => a.codAssunto == grupo.codAssunto)
+                                    .FirstOrDefault();
+                if (assunto == null) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem assunto definido/Assunto não encontrado" });
+                var grupoFull = new { Grupo = grupo, ParticipantesGrupo = pg, Assunto = assunto };
+                retorno.Add(grupoFull);
+            }
+
+            return Ok(retorno);
 
         }
 

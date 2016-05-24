@@ -40,14 +40,6 @@ namespace TheLearningMaze_API.Controllers
             return Ok(assunto);
         }
 
-        // GET: api/Grupos/5/Integrantes
-        [HttpGet]
-        [Route("api/Grupos/{id}/Participantes")]
-        public IHttpActionResult GetGrupoParticipantes(int id)
-        {
-            return Ok();
-        }
-
         //// GET: api/Grupos
         //public IQueryable<Grupo> GetGrupos()
         //{
