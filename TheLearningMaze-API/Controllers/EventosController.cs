@@ -74,7 +74,15 @@ namespace TheLearningMaze_API.Controllers
                 .OrderByDescending(d => d.data)
                 .FirstOrDefault();
 
-            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+            if (evento == null)
+            {
+                evento = db.Eventos
+                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "A")
+                .OrderByDescending(d => d.data)
+                .FirstOrDefault();
+                
+                if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+            }
 
             return Ok(evento);
         }
