@@ -13,7 +13,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    [ProfAuthFilter]
+    //[ProfAuthFilter]
     public class EventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -27,13 +27,14 @@ namespace TheLearningMaze_API.Controllers
             // Faz decode do Token para extrair codProfessor e token original
             TokenProf tokenProf = new TokenProf().DecodeToken(token);
 
-            var eventos = db.Eventos
+            List<Evento> eventos = db.Eventos
                 .Where(e => e.codProfessor == tokenProf.codProfessor)
-                .OrderByDescending(d => d.data);
+                .OrderByDescending(d => d.data)
+                .ToList();
             int totalEventos = eventos.Count();
             int totalPaginas = (int)Math.Ceiling((double)totalEventos / perPage);
 
-            var retorno = eventos
+            List<Evento> retorno = eventos
                 .Skip(perPage * page)
                 .Take(perPage)
                 .ToList();
@@ -68,7 +69,7 @@ namespace TheLearningMaze_API.Controllers
             // Faz decode do Token para extrair codProfessor e token original
             TokenProf tokenProf = new TokenProf().DecodeToken(token);
 
-            var evento = db.Eventos
+            Evento evento = db.Eventos
                 .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "E")
                 .OrderByDescending(d => d.data)
                 .FirstOrDefault();
