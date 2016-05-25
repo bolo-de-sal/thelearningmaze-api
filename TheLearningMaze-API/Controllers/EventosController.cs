@@ -28,7 +28,7 @@ namespace TheLearningMaze_API.Controllers
             TokenProf tokenProf = new TokenProf().DecodeToken(token);
 
             List<Evento> eventos = db.Eventos
-                .Where(e => e.codProfessor == tokenProf.codProfessor)
+                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codTipoEvento == 4)
                 .OrderByDescending(d => d.data)
                 .ToList();
             int totalEventos = eventos.Count();
@@ -70,14 +70,14 @@ namespace TheLearningMaze_API.Controllers
             TokenProf tokenProf = new TokenProf().DecodeToken(token);
 
             Evento evento = db.Eventos
-                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "E")
+                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "E" && e.codTipoEvento == 4)
                 .OrderByDescending(d => d.data)
                 .FirstOrDefault();
 
             if (evento == null)
             {
                 evento = db.Eventos
-                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "A")
+                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "A" && e.codTipoEvento == 4)
                 .OrderByDescending(d => d.data)
                 .FirstOrDefault();
                 
