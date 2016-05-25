@@ -118,15 +118,25 @@ namespace TheLearningMaze_API.Controllers
 
             foreach(Grupo grupo in grupos)
             {
-                List<ParticipanteGrupo> pg = db.ParticipanteGrupos
+                List<ParticipanteGrupo> pgs = db.ParticipanteGrupos
                                                 .Where(p => p.codGrupo == grupo.codGrupo)
                                                 .ToList();
-                if (pg.Count == 0) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem participantes" });
+                if (pgs.Count == 0) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem participantes" });
+
+                List<Participante> participantes = new List<Participante>();
+
+                foreach(ParticipanteGrupo pg in pgs)
+                {
+                    Participante p = db.Participantes.Find(pg.codParticipante);
+                    if (p == null) return Content(HttpStatusCode.NotFound, new { message = "Participante não encontrado" });
+                    participantes.Add(p);
+                }
+
                 Assunto assunto = db.Assuntos
                                     .Where(a => a.codAssunto == grupo.codAssunto)
                                     .FirstOrDefault();
                 if (assunto == null) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem assunto definido/Assunto não encontrado" });
-                var grupoFull = new { Grupo = grupo, ParticipantesGrupo = pg, Assunto = assunto };
+                var grupoFull = new { Grupo = grupo, ParticipantesGrupo = participantes, Assunto = assunto };
                 retorno.Add(grupoFull);
             }
 
