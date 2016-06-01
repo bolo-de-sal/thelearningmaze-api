@@ -13,7 +13,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    [ProfAuthFilter]
+    //[ProfAuthFilter]
     public class EventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -103,6 +103,7 @@ namespace TheLearningMaze_API.Controllers
 
         }
 
+        // GET: api/Eventos/5/GruposCompleto
         [Route("api/Eventos/{id}/GruposCompleto")]
         public IHttpActionResult GetGruposFull(int id)
         {

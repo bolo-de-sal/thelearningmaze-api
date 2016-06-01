@@ -14,5 +14,6 @@ namespace TheLearningMaze_API.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Int32 codGrupo { get; set; }
         public Byte ordem { get; set; }
+        public string codConexao { get; set; }
     }
 }
