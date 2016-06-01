@@ -13,6 +13,9 @@ namespace TheLearningMaze_API.Hubs
 
         public void JoinEvento(string identificador, int? codParticipante)
         {
+            string tipoAluno = "Aluno";
+            this.Groups.Add(this.Context.ConnectionId, identificador);
+
             if (codParticipante != null)
             {
                 // Verificar se codParticipante é líder e guardar na tabela
@@ -31,11 +34,10 @@ namespace TheLearningMaze_API.Hubs
                     db.Entry(meo).State = System.Data.Entity.EntityState.Modified;
                     db.SaveChanges();
                 }
-                Clients.OthersInGroup(identificador).joinEvento("Líder");
-                return;
+                tipoAluno = "Líder";
             }
-            this.Groups.Add(this.Context.ConnectionId, identificador);
-            Clients.Group(identificador).joinEvento("Aluno");
+            
+            Clients.Group(identificador).joinEvento(tipoAluno);
         }
 
         public void LancarPergunta(string identificador, string pergunta)
