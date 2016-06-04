@@ -24,7 +24,7 @@ namespace TheLearningMaze_API.Hubs
                                     .FirstOrDefault();
                 Grupo grupo = db.Grupos
                                 .Where(g => g.codLider == codParticipante && g.codEvento == evento.codEvento).
-                                First();
+                                FirstOrDefault();
                 if (grupo != null)
                 {
                     MasterEventosOrdem meo = db.MasterEventosOrdem
@@ -33,8 +33,9 @@ namespace TheLearningMaze_API.Hubs
                     meo.codConexao = this.Context.ConnectionId;
                     db.Entry(meo).State = System.Data.Entity.EntityState.Modified;
                     db.SaveChanges();
+                    tipoAluno = "Líder";
                 }
-                tipoAluno = "Líder";
+                
             }
             
             Clients.Group(identificador).joinEvento(tipoAluno);
