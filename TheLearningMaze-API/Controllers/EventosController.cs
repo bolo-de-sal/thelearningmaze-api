@@ -255,11 +255,46 @@ namespace TheLearningMaze_API.Controllers
             return Ok(evento);
         }
 
+        // POST: api/Eventos/RegistrarPerguntas
+        [HttpPost]
+        [Route("api/Eventos/RegistrarPerguntas")]
+        public IHttpActionResult RegistrarPerguntas(Evento ev, Questao[] q)
+        {
+            int? e = db.Eventos.Where(w => w.codEvento == ev.codEvento).Select(w => w.codEvento).FirstOrDefault();
+            if (e == null && e == 0) return Content(HttpStatusCode.BadRequest, new { message = "Não foi enviado evento válido!" });
+            if (q == null) return Content(HttpStatusCode.BadRequest, new { message = "Não foram enviadas questões!" });
+
+            foreach(Questao questao in q)
+            {
+                QuestaoEvento qe = new QuestaoEvento
+                                                    {
+                                                        codEvento = ev.codEvento,
+                                                        codQuestao = questao.codQuestao,
+                                                        codStatus = "C",
+                                                        tempo = null
+                                                    };
+
+                db.QuestaoEventos.Add(qe);      
+            }
+
+            db.SaveChanges();
+
+            return Ok();
+        }
+        
         // POST: /api/Eventos/LancarPergunta
         [HttpPost]
         [Route("api/Eventos/LancarPergunta")]
         public IHttpActionResult LancarPergunta(Questao q)
         {
+            QuestaoEvento questao = db.QuestaoEventos.Find(q.codQuestao);
+            if (questao == null) return Content(HttpStatusCode.NotFound, new { message = "Questão inválida!" });
+            if (questao.codStatus != "C") return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada!" });
+
+            questao.codStatus = "E";
+            db.Entry(questao).State = EntityState.Modified;
+            db.SaveChanges();
+
             return Ok();
         }
 
