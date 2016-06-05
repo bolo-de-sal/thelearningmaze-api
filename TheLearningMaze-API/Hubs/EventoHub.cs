@@ -41,9 +41,9 @@ namespace TheLearningMaze_API.Hubs
             Clients.Group(identificador).joinEvento(tipoAluno);
         }
 
-        public void LancarPergunta(string identificador, string pergunta)
+        public void LancarPergunta(string identificador, int tempo)
         {
-            Clients.OthersInGroup(identificador).lancarPergunta(pergunta);
+            Clients.OthersInGroup(identificador).lancarPergunta(tempo);
         }
 
         public void ResponderPergunta(string identificador)
