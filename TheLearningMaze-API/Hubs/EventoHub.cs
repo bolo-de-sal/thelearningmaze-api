@@ -11,33 +11,26 @@ namespace TheLearningMaze_API.Hubs
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        public void JoinEvento(string identificador, int? codParticipante)
+        public void JoinEvento(int codGrupo, int? codParticipante)
         {
-            string tipoAluno = "Aluno";
-            this.Groups.Add(this.Context.ConnectionId, identificador);
+            var tipoAluno = "Aluno";
 
-            if (codParticipante != null)
+            var grupo = db.Grupos.First(g => g.codGrupo == codGrupo);
+            var evento = db.Eventos.First(e => e.codEvento == grupo.codEvento);
+
+            this.Groups.Add(this.Context.ConnectionId, evento.identificador);
+
+            // Verificar se codParticipante é líder e guardar na tabela
+            if (codParticipante != null && codParticipante == grupo.codLider)
             {
-                // Verificar se codParticipante é líder e guardar na tabela
-                Evento evento = db.Eventos
-                                    .Where(e => e.identificador == identificador)
-                                    .FirstOrDefault();
-                Grupo grupo = db.Grupos
-                                .Where(g => g.codLider == codParticipante && g.codEvento == evento.codEvento).
-                                First();
-                if (grupo != null)
-                {
-                    MasterEventosOrdem meo = db.MasterEventosOrdem
-                                                .Where(m => m.codGrupo == grupo.codGrupo)
-                                                .FirstOrDefault();
-                    meo.codConexao = this.Context.ConnectionId;
-                    db.Entry(meo).State = System.Data.Entity.EntityState.Modified;
-                    db.SaveChanges();
-                }
+                var meo = db.MasterEventosOrdem.First(m => m.codGrupo == grupo.codGrupo);
+                meo.codConexao = this.Context.ConnectionId;
+                db.Entry(meo).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
                 tipoAluno = "Líder";
             }
-            
-            Clients.Group(identificador).joinEvento(tipoAluno);
+
+            Clients.Group(evento.identificador).joinEvento(tipoAluno);
         }
 
         public void LancarPergunta(string identificador, string pergunta)
