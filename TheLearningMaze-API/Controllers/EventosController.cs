@@ -199,6 +199,20 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        // GET: api/Eventos/5/QuestaoAtual
+        [Route("api/Eventos/{id}/QuestaoAtual")]
+        public IHttpActionResult GetQuestaoAtual(int id)
+        {
+            int? codQuestaoAtual = db.QuestaoEventos
+                                    .Where(q => q.codEvento == id && q.codStatus == "E")
+                                    .Select(q => q.codQuestao)
+                                    .FirstOrDefault();
+            if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+
+            Questao questao = db.Questaos.Find(codQuestaoAtual);
+            return Ok(questao);
+        }
+
         // POST: /api/Eventos/Iniciar
         [HttpPost]
         [Route("api/Eventos/Iniciar")]
@@ -298,6 +312,13 @@ namespace TheLearningMaze_API.Controllers
             return Ok();
         }
 
+        //POST: api/Eventos/ResponderPergunta
+        [HttpPost]
+        [Route("api/Eventos/ResponderPergunta")]
+        public IHttpActionResult ResponderPergunta()
+        {
+            return Ok();
+        }
 
         protected override void Dispose(bool disposing)
         {
