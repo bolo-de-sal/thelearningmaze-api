@@ -177,7 +177,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
-        // Get: api/Eventos/5/Questoes
+        // GET: api/Eventos/5/Questoes
         [Route("api/Eventos/{id}/Questoes")]
         public IHttpActionResult GetQuestoesEvento(int id)
         {
