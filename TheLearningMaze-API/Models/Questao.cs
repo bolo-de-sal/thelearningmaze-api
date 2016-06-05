@@ -17,7 +17,7 @@ namespace TheLearningMaze_API.Models
 
         public Int32 codAssunto { get; set; }
 
-        public Int32 codImagem { get; set; }
+        public Int32? codImagem { get; set; }
 
         public String codTipoQuestao { get; set; }
 

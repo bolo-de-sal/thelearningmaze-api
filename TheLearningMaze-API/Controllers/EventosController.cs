@@ -177,6 +177,28 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        // Get: api/Eventos/5/Questoes
+        [Route("api/Eventos/{id}/Questoes")]
+        public IHttpActionResult GetQuestoesEvento(int id)
+        {
+            var questoes = db.QuestaoEventos
+                             .Where(q => q.codEvento == id)
+                             .Select(q => q.codQuestao)
+                             .ToList();
+            if (questoes == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas!" });
+
+            List<Questao> retorno = new List<Questao>();
+
+            foreach(int qe in questoes)
+            {
+                Questao q = db.Questaos.Find(qe);
+                if (q == null) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
+                retorno.Add(q);
+            }
+
+            return Ok(retorno);
+        }
+
         // POST: /api/Eventos/Iniciar
         [HttpPost]
         [Route("api/Eventos/Iniciar")]
@@ -232,6 +254,15 @@ namespace TheLearningMaze_API.Controllers
 
             return Ok(evento);
         }
+
+        // POST: /api/Eventos/LancarPergunta
+        [HttpPost]
+        [Route("api/Eventos/LancarPergunta")]
+        public IHttpActionResult LancarPergunta(Questao q)
+        {
+            return Ok();
+        }
+
 
         protected override void Dispose(bool disposing)
         {

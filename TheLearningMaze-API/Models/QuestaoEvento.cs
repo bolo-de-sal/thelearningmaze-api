@@ -17,6 +17,6 @@ namespace TheLearningMaze_API.Models
 
         public String codStatus { get; set; }
 
-        public DateTime tempo { get; set; }
+        public DateTime? tempo { get; set; }
     }
 }
