@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -9,7 +10,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    [ProfAuthFilter]
+    //[ProfAuthFilter]
     public class GruposController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -38,6 +39,20 @@ namespace TheLearningMaze_API.Controllers
             Assunto assunto = db.Assuntos.Find(grupo.codAssunto);
             if (assunto == null) return Content(HttpStatusCode.NotFound, new { message = "Não foi encontrado assunto especificado" });
             return Ok(assunto);
+        }
+
+        // GET: api/Grupos/5/Acertos
+        [HttpGet]
+        [Route("api/Grupos/{id}/Acertos")]
+        public IHttpActionResult GetAcertosGrupo(int id)
+        {
+            List<QuestaoGrupo> qg = db.QuestaoGrupos
+                                .Where(q => q.codGrupo == id)
+                                .OrderBy(q => q.tempo)
+                                .ToList();
+            if (qg == null) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem questões" });
+
+            return Ok(qg);
         }
 
         protected override void Dispose(bool disposing)

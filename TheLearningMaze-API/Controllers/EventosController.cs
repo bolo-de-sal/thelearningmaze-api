@@ -177,6 +177,42 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        // GET: api/Eventos/5/Questoes
+        [Route("api/Eventos/{id}/Questoes")]
+        public IHttpActionResult GetQuestoesEvento(int id)
+        {
+            var questoes = db.QuestaoEventos
+                             .Where(q => q.codEvento == id)
+                             .Select(q => q.codQuestao)
+                             .ToList();
+            if (questoes == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas!" });
+
+            List<Questao> retorno = new List<Questao>();
+
+            foreach(int qe in questoes)
+            {
+                Questao q = db.Questaos.Find(qe);
+                if (q == null) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
+                retorno.Add(q);
+            }
+
+            return Ok(retorno);
+        }
+
+        // GET: api/Eventos/5/QuestaoAtual
+        [Route("api/Eventos/{id}/QuestaoAtual")]
+        public IHttpActionResult GetQuestaoAtual(int id)
+        {
+            int? codQuestaoAtual = db.QuestaoEventos
+                                    .Where(q => q.codEvento == id && q.codStatus == "E")
+                                    .Select(q => q.codQuestao)
+                                    .FirstOrDefault();
+            if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+
+            Questao questao = db.Questaos.Find(codQuestaoAtual);
+            return Ok(questao);
+        }
+
         // POST: /api/Eventos/Iniciar
         [HttpPost]
         [Route("api/Eventos/Iniciar")]
@@ -231,6 +267,57 @@ namespace TheLearningMaze_API.Controllers
             db.SaveChanges();
 
             return Ok(evento);
+        }
+
+        // POST: api/Eventos/RegistrarPerguntas
+        [HttpPost]
+        [Route("api/Eventos/RegistrarPerguntas")]
+        public IHttpActionResult RegistrarPerguntas(Evento ev, Questao[] q)
+        {
+            int? e = db.Eventos.Where(w => w.codEvento == ev.codEvento).Select(w => w.codEvento).FirstOrDefault();
+            if (e == null && e == 0) return Content(HttpStatusCode.BadRequest, new { message = "Não foi enviado evento válido!" });
+            if (q == null) return Content(HttpStatusCode.BadRequest, new { message = "Não foram enviadas questões!" });
+
+            foreach(Questao questao in q)
+            {
+                QuestaoEvento qe = new QuestaoEvento
+                                                    {
+                                                        codEvento = ev.codEvento,
+                                                        codQuestao = questao.codQuestao,
+                                                        codStatus = "C",
+                                                        tempo = null
+                                                    };
+
+                db.QuestaoEventos.Add(qe);      
+            }
+
+            db.SaveChanges();
+
+            return Ok();
+        }
+        
+        // POST: /api/Eventos/LancarPergunta
+        [HttpPost]
+        [Route("api/Eventos/LancarPergunta")]
+        public IHttpActionResult LancarPergunta(Questao q)
+        {
+            QuestaoEvento questao = db.QuestaoEventos.Find(q.codQuestao);
+            if (questao == null) return Content(HttpStatusCode.NotFound, new { message = "Questão inválida!" });
+            if (questao.codStatus != "C") return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada!" });
+
+            questao.codStatus = "E";
+            db.Entry(questao).State = EntityState.Modified;
+            db.SaveChanges();
+
+            return Ok();
+        }
+
+        //POST: api/Eventos/ResponderPergunta
+        [HttpPost]
+        [Route("api/Eventos/ResponderPergunta")]
+        public IHttpActionResult ResponderPergunta()
+        {
+            return Ok();
         }
 
         protected override void Dispose(bool disposing)
