@@ -10,7 +10,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    //[ProfAuthFilter]
+    [ProfAuthFilter]
     public class GruposController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
