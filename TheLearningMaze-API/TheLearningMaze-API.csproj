@@ -263,7 +263,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImagensController.cs" />
     <Compile Include="Controllers\ProfessorsController.cs" />
-    <Compile Include="Controllers\QuestaosController.cs" />
     <Compile Include="Controllers\TokensController.cs" />
     <Compile Include="Custom\HttpStatusCodeCustom.cs" />
     <Compile Include="Filters\ProfAuthFilter.cs" />

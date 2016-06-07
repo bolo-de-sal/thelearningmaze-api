@@ -210,7 +210,32 @@ namespace TheLearningMaze_API.Controllers
             if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
 
             Questao questao = db.Questaos.Find(codQuestaoAtual);
+
             return Ok(questao);
+        }
+
+        // GET: api/Eventos/5/QuestaoAtual/Alternativas
+        [Route("api/Eventos/{id}/QuestaoAtual/Alternativas")]
+        public IHttpActionResult GetQuestaoAtualAlternativas(int id)
+        {
+            int? codQuestaoAtual = db.QuestaoEventos
+                                    .Where(q => q.codEvento == id && q.codStatus == "E")
+                                    .Select(q => q.codQuestao)
+                                    .FirstOrDefault();
+            if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+
+            string tipoQuestao = db.Questaos
+                        .Where(q => q.codQuestao == codQuestaoAtual)
+                        .Select(q => q.codTipoQuestao)
+                        .FirstOrDefault();
+
+            if (tipoQuestao != "A") return Content(HttpStatusCode.BadRequest, new { message = "Questão não é de alternativas!" });
+
+            List<Alternativa> alt = db.Alternativas
+                                .Where(e => e.codQuestao == codQuestaoAtual)
+                                .ToList();
+
+            return Ok(alt);
         }
 
         // POST: /api/Eventos/Iniciar
