@@ -187,13 +187,20 @@ namespace TheLearningMaze_API.Controllers
                              .ToList();
             if (questoes == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas!" });
 
-            List<Questao> retorno = new List<Questao>();
+            List<Object> retorno = new List<Object>();
 
             foreach(int qe in questoes)
             {
                 Questao q = db.Questaos.Find(qe);
                 if (q == null) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
-                retorno.Add(q);
+                Assunto a = db.Assuntos.Find(q.codAssunto);
+                if (a == null) return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
+                retorno.Add(new
+                        {
+                            Questao = q,
+                            Assunto = a
+                        }
+                    );
             }
 
             return Ok(retorno);
