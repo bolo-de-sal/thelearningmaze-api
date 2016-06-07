@@ -207,7 +207,7 @@ namespace TheLearningMaze_API.Controllers
                                     .Where(q => q.codEvento == id && q.codStatus == "E")
                                     .Select(q => q.codQuestao)
                                     .FirstOrDefault();
-            if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
 
             Questao questao = db.Questaos.Find(codQuestaoAtual);
 
@@ -340,9 +340,70 @@ namespace TheLearningMaze_API.Controllers
         //POST: api/Eventos/ResponderPergunta
         [HttpPost]
         [Route("api/Eventos/ResponderPergunta")]
-        public IHttpActionResult ResponderPergunta()
+        public IHttpActionResult ResponderPergunta(Resposta r)
         {
-            return Ok();
+            int? codQuestaoAtual = db.QuestaoEventos
+                                    .Where(q => q.codEvento == r.codEvento && q.codStatus == "E")
+                                    .Select(q => q.codQuestao)
+                                    .FirstOrDefault();
+            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
+
+            List<Alternativa> alts = db.Alternativas
+                                        .Where(a => a.codQuestao == codQuestaoAtual)
+                                        .ToList();
+
+            bool acertou = false;
+
+            switch (r.tipoQuestao)
+            {
+                case "A":
+                    foreach(Alternativa alt in alts)
+                    {
+                        if (alt.correta && (alt.codAlternativa == r.alternativa))
+                        {
+                            acertou = true;
+                            break;
+                        }
+                    }
+                    break;
+
+                case "T":
+                    foreach(Alternativa alt in alts)
+                    {
+                        if(alt.textoAlternativa.Trim() == r.texto.Trim())
+                        {
+                            acertou = true;
+                            break;
+                        }
+                    }
+                    break;
+
+                case "V":
+                    if (alts.First().correta == r.verdadeiro) acertou = true;
+                    break;
+
+                default:
+                    return Content(HttpStatusCode.BadRequest, new { message = "Tipo da questão inválido!" });
+            }
+
+            QuestaoGrupo qg = db.QuestaoGrupos
+                                .Where(q => q.codQuestao == codQuestaoAtual)
+                                .FirstOrDefault();
+
+            if (qg == null) return Content(HttpStatusCode.NotFound, new { message = "QuestãoGrupo não encontrada" });
+
+            qg.tempo = DateTime.Now;
+            qg.correta = acertou;
+            if (r.tipoQuestao == "T")
+                qg.textoResp = r.texto;
+            else if (r.tipoQuestao == "V")
+                qg.textoResp = r.verdadeiro.ToString();
+            else
+                qg.textoResp = null;
+
+            db.SaveChanges();
+
+            return Ok(qg);
         }
 
         protected override void Dispose(bool disposing)
