@@ -177,6 +177,29 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        // GET: api/Eventos/5/Assuntos
+        [Route("api/Eventos/{id}/Assuntos")]
+        public IHttpActionResult GetAssuntos(int id)
+        {
+            List<EventoAssunto> ea = db.EventoAssuntos
+                                        .Where(e => e.codEvento == id)
+                                        .ToList();
+
+            if (ea == null) return Content(HttpStatusCode.NotFound, new { message = "Não há assuntos cadastrados para o evento!" });
+
+            List<Assunto> retorno = new List<Assunto>();
+            
+            foreach(EventoAssunto e in ea)
+            {
+                Assunto a = db.Assuntos.Find(e.codAssunto);
+                if (a == null) return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
+                retorno.Add(a);
+            }
+
+            return Ok(retorno);
+        }
+
+
         // GET: api/Eventos/5/Questoes
         [Route("api/Eventos/{id}/Questoes")]
         public IHttpActionResult GetQuestoesEvento(int id)
