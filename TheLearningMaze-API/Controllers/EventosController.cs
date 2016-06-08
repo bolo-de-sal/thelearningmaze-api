@@ -52,7 +52,7 @@ namespace TheLearningMaze_API.Controllers
         [ResponseType(typeof(Evento))]
         public IHttpActionResult GetEvento(int id)
         {
-            Evento evento = db.Eventos.Find(id);
+            Evento evento = db.Eventos.FirstOrDefault(e => e.codEvento == id);
 
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
@@ -199,7 +199,6 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
-
         // GET: api/Eventos/5/Questoes
         [Route("api/Eventos/{id}/Questoes")]
         public IHttpActionResult GetQuestoesEvento(int id)
@@ -239,7 +238,7 @@ namespace TheLearningMaze_API.Controllers
                                     .FirstOrDefault();
             if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
 
-            Questao questao = db.Questaos.Find(codQuestaoAtual);
+            Questao questao = db.Questaos.FirstOrDefault(q => q.codQuestao == codQuestaoAtual);
 
             return Ok(questao);
         }
