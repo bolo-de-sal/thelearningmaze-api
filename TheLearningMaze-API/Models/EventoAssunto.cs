@@ -11,8 +11,10 @@ namespace TheLearningMaze_API.Models
     public class EventoAssunto
     {
         [Key]
+        [Column(Order = 1)]
         public Int32 codEvento { get; set; }
-
+        [Key]
+        [Column(Order = 2)]
         public Int32 codAssunto { get; set; }
     }
 }

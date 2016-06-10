@@ -11,8 +11,13 @@ namespace TheLearningMaze_API.Models
     public class ParticipanteGrupo
     {
         [Key]
+        [Column(Order = 1)]
         public Int32 codGrupo { get; set; }
-
+        [Key]
+        [Column(Order = 2)]
         public Int32 codParticipante { get; set; }
+
+        //public virtual ICollection<Grupo> grupo { get; set; }
+        //public virtual ICollection<Participante> participante { get; set; }
     }
 }

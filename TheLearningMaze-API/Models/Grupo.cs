@@ -20,5 +20,7 @@ namespace TheLearningMaze_API.Models
         public Int32 codAssunto { get; set; }
 
         public Int32 codLider { get; set; }
+
+        //public virtual ICollection<Participante> participantes { get; set; }
     }
 }
