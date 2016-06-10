@@ -52,7 +52,7 @@ namespace TheLearningMaze_API.Controllers
         [ResponseType(typeof(Evento))]
         public IHttpActionResult GetEvento(int id)
         {
-            Evento evento = db.Eventos.Find(id);
+            Evento evento = db.Eventos.FirstOrDefault(e => e.codEvento == id);
 
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
@@ -177,6 +177,28 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        // GET: api/Eventos/5/Assuntos
+        [Route("api/Eventos/{id}/Assuntos")]
+        public IHttpActionResult GetAssuntos(int id)
+        {
+            List<EventoAssunto> ea = db.EventoAssuntos
+                                        .Where(e => e.codEvento == id)
+                                        .ToList();
+
+            if (ea == null) return Content(HttpStatusCode.NotFound, new { message = "Não há assuntos cadastrados para o evento!" });
+
+            List<Assunto> retorno = new List<Assunto>();
+            
+            foreach(EventoAssunto e in ea)
+            {
+                Assunto a = db.Assuntos.Find(e.codAssunto);
+                if (a == null) return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
+                retorno.Add(a);
+            }
+
+            return Ok(retorno);
+        }
+
         // GET: api/Eventos/5/Questoes
         [Route("api/Eventos/{id}/Questoes")]
         public IHttpActionResult GetQuestoesEvento(int id)
@@ -187,13 +209,20 @@ namespace TheLearningMaze_API.Controllers
                              .ToList();
             if (questoes == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas!" });
 
-            List<Questao> retorno = new List<Questao>();
+            List<Object> retorno = new List<Object>();
 
             foreach (int qe in questoes)
             {
                 Questao q = db.Questaos.Find(qe);
                 if (q == null) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
-                retorno.Add(q);
+                Assunto a = db.Assuntos.Find(q.codAssunto);
+                if (a == null) return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
+                retorno.Add(new
+                        {
+                            Questao = q,
+                            Assunto = a
+                        }
+                    );
             }
 
             return Ok(retorno);
@@ -207,10 +236,35 @@ namespace TheLearningMaze_API.Controllers
                                     .Where(q => q.codEvento == id && q.codStatus == "E")
                                     .Select(q => q.codQuestao)
                                     .FirstOrDefault();
+            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+
+            Questao questao = db.Questaos.FirstOrDefault(q => q.codQuestao == codQuestaoAtual);
+
+            return Ok(questao);
+        }
+
+        // GET: api/Eventos/5/QuestaoAtual/Alternativas
+        [Route("api/Eventos/{id}/QuestaoAtual/Alternativas")]
+        public IHttpActionResult GetQuestaoAtualAlternativas(int id)
+        {
+            int? codQuestaoAtual = db.QuestaoEventos
+                                    .Where(q => q.codEvento == id && q.codStatus == "E")
+                                    .Select(q => q.codQuestao)
+                                    .FirstOrDefault();
             if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
 
-            Questao questao = db.Questaos.Find(codQuestaoAtual);
-            return Ok(questao);
+            string tipoQuestao = db.Questaos
+                        .Where(q => q.codQuestao == codQuestaoAtual)
+                        .Select(q => q.codTipoQuestao)
+                        .FirstOrDefault();
+
+            if (tipoQuestao != "A") return Content(HttpStatusCode.BadRequest, new { message = "Questão não é de alternativas!" });
+
+            List<Alternativa> alt = db.Alternativas
+                                .Where(e => e.codQuestao == codQuestaoAtual)
+                                .ToList();
+
+            return Ok(alt);
         }
 
         // POST: /api/Eventos/Iniciar
@@ -350,9 +404,70 @@ namespace TheLearningMaze_API.Controllers
         //POST: api/Eventos/ResponderPergunta
         [HttpPost]
         [Route("api/Eventos/ResponderPergunta")]
-        public IHttpActionResult ResponderPergunta()
+        public IHttpActionResult ResponderPergunta(Resposta r)
         {
-            return Ok();
+            int? codQuestaoAtual = db.QuestaoEventos
+                                    .Where(q => q.codEvento == r.codEvento && q.codStatus == "E")
+                                    .Select(q => q.codQuestao)
+                                    .FirstOrDefault();
+            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
+
+            List<Alternativa> alts = db.Alternativas
+                                        .Where(a => a.codQuestao == codQuestaoAtual)
+                                        .ToList();
+
+            bool acertou = false;
+
+            switch (r.tipoQuestao)
+            {
+                case "A":
+                    foreach(Alternativa alt in alts)
+                    {
+                        if (alt.correta && (alt.codAlternativa == r.alternativa))
+                        {
+                            acertou = true;
+                            break;
+                        }
+                    }
+                    break;
+
+                case "T":
+                    foreach(Alternativa alt in alts)
+                    {
+                        if(alt.textoAlternativa.Trim() == r.texto.Trim())
+                        {
+                            acertou = true;
+                            break;
+                        }
+                    }
+                    break;
+
+                case "V":
+                    if (alts.First().correta == r.verdadeiro) acertou = true;
+                    break;
+
+                default:
+                    return Content(HttpStatusCode.BadRequest, new { message = "Tipo da questão inválido!" });
+            }
+
+            QuestaoGrupo qg = db.QuestaoGrupos
+                                .Where(q => q.codQuestao == codQuestaoAtual)
+                                .FirstOrDefault();
+
+            if (qg == null) return Content(HttpStatusCode.NotFound, new { message = "QuestãoGrupo não encontrada" });
+
+            qg.tempo = DateTime.Now;
+            qg.correta = acertou;
+            if (r.tipoQuestao == "T")
+                qg.textoResp = r.texto;
+            else if (r.tipoQuestao == "V")
+                qg.textoResp = r.verdadeiro.ToString();
+            else
+                qg.textoResp = null;
+
+            db.SaveChanges();
+
+            return Ok(qg);
         }
 
         protected override void Dispose(bool disposing)

@@ -263,7 +263,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImagensController.cs" />
     <Compile Include="Controllers\ProfessorsController.cs" />
-    <Compile Include="Controllers\QuestaosController.cs" />
     <Compile Include="Controllers\TokensController.cs" />
     <Compile Include="Custom\HttpStatusCodeCustom.cs" />
     <Compile Include="Filters\ProfAuthFilter.cs" />
@@ -288,6 +287,7 @@
     <Compile Include="Models\Questao.cs" />
     <Compile Include="Models\QuestaoEvento.cs" />
     <Compile Include="Models\QuestaoGrupo.cs" />
+    <Compile Include="Models\Resposta.cs" />
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\TipoEvento.cs" />
     <Compile Include="Models\TipoQuestao.cs" />
