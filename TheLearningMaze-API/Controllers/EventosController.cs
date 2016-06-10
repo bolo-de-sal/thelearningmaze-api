@@ -10,6 +10,8 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using TheLearningMaze_API.Filters;
 using TheLearningMaze_API.Models;
+using WebGrease.Activities;
+using Dapper;
 
 namespace TheLearningMaze_API.Controllers
 {
@@ -22,23 +24,23 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/Paged/{page}/{perPage}")]
         public IHttpActionResult GetEventosPaginated(int page = 0, int perPage = 10)
         {
-            string token = Request.Headers.Authorization.ToString();
+            var token = Request.Headers.Authorization.ToString();
 
             // Faz decode do Token para extrair codProfessor e token original
-            TokenProf tokenProf = new TokenProf().DecodeToken(token);
+            var tokenProf = new TokenProf().DecodeToken(token);
 
-            List<Evento> eventos = db.Eventos
+            var eventos = db.Eventos
                 .Where(e => e.codProfessor == tokenProf.codProfessor && e.codTipoEvento == 4)
                 .OrderByDescending(d => d.data)
                 .ToList();
-            int totalEventos = eventos.Count();
-            int totalPaginas = (int)Math.Ceiling((double)totalEventos / perPage);
 
-            List<Evento> retorno = eventos
+            var totalEventos = eventos.Count();
+            var totalPaginas = (int)Math.Ceiling((double)totalEventos / perPage);
+
+            var retorno = eventos
                 .Skip(perPage * page)
                 .Take(perPage)
                 .ToList();
-
 
             return Ok(new
             {
@@ -64,25 +66,18 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/Ativo")]
         public IHttpActionResult GetEventoAtivo()
         {
-            string token = Request.Headers.Authorization.ToString();
+            var token = Request.Headers.Authorization.ToString();
 
             // Faz decode do Token para extrair codProfessor e token original
-            TokenProf tokenProf = new TokenProf().DecodeToken(token);
+            var tokenProf = new TokenProf().DecodeToken(token);
 
-            Evento evento = db.Eventos
-                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "E" && e.codTipoEvento == 4)
+            var evento = db.Eventos
+                .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "E" || e.codStatus == "A") && e.codTipoEvento == 4)
                 .OrderByDescending(d => d.data)
                 .FirstOrDefault();
 
             if (evento == null)
-            {
-                evento = db.Eventos
-                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "A" && e.codTipoEvento == 4)
-                .OrderByDescending(d => d.data)
-                .FirstOrDefault();
-
-                if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
-            }
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado." });
 
             return Ok(evento);
         }
@@ -188,8 +183,8 @@ namespace TheLearningMaze_API.Controllers
             if (ea == null) return Content(HttpStatusCode.NotFound, new { message = "Não há assuntos cadastrados para o evento!" });
 
             List<Assunto> retorno = new List<Assunto>();
-            
-            foreach(EventoAssunto e in ea)
+
+            foreach (EventoAssunto e in ea)
             {
                 Assunto a = db.Assuntos.Find(e.codAssunto);
                 if (a == null) return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
@@ -321,10 +316,6 @@ namespace TheLearningMaze_API.Controllers
             if (evento.codStatus != "C")
                 return Content(HttpStatusCode.BadRequest, new { message = "Evento já em execução, aberto ou finalizado." });
 
-            evento.codStatus = "A";
-            evento.data = DateTime.Now;
-            db.Entry(evento).State = EntityState.Modified;
-
             var token = Request.Headers.Authorization.ToString();
             // Faz decode do Token para extrair codProfessor e token original
             var tokenProf = new TokenProf().DecodeToken(token);
@@ -334,6 +325,19 @@ namespace TheLearningMaze_API.Controllers
             {
                 return Content(HttpStatusCode.BadRequest, new { message = "Professor não encontrado!" });
             }
+
+            //var eventosAbertosOuExecucao = db.Eventos
+            //    .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "E" || e.codStatus == "A") && e.codTipoEvento == 4)
+            //    .ToList();
+
+            //if (eventosAbertosOuExecucao.Count > 0)
+            //{
+            //    return Content(HttpStatusCode.BadRequest, new { message = "Professor não encontrado!" });
+            //}
+
+            evento.codStatus = "A";
+            evento.data = DateTime.Now;
+            db.Entry(evento).State = EntityState.Modified;
 
             tokenProfessor.codEvento = eventoID;
 
@@ -388,17 +392,37 @@ namespace TheLearningMaze_API.Controllers
         // POST: /api/Eventos/LancarPergunta
         [HttpPost]
         [Route("api/Eventos/LancarPergunta")]
-        public IHttpActionResult LancarPergunta(Questao q)
+        public IHttpActionResult LancarPergunta(QuestaoEvento requestQuestao)
         {
-            QuestaoEvento questao = db.QuestaoEventos.Find(q.codQuestao);
-            if (questao == null) return Content(HttpStatusCode.NotFound, new { message = "Questão inválida!" });
-            if (questao.codStatus != "C") return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada!" });
+            using (var dbContext = new ApplicationDbContext())
+            {
+                var questao = dbContext.QuestaoEventos
+                    .FirstOrDefault(q => q.codQuestao == requestQuestao.codQuestao && q.codEvento == requestQuestao.codEvento);
 
-            questao.codStatus = "E";
-            db.Entry(questao).State = EntityState.Modified;
-            db.SaveChanges();
+                if (questao == null)
+                    return Content(HttpStatusCode.NotFound, new { message = "Questão inválida!" });
 
-            return Ok();
+                if (questao.codStatus != "C")
+                    return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada!" });
+
+                const string sql = 
+@"UPDATE QuestaoEvento SET codStatus = 'E' WHERE codEvento = @codEvento AND codQuestao = @codQuestao";
+
+                try
+                {
+                    dbContext.Database.Connection.ExecuteScalar<int>(sql, new
+                    {
+                        requestQuestao.codEvento,
+                        requestQuestao.codQuestao
+                    });
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.Message);
+                }
+
+                return Ok();
+            }
         }
 
         //POST: api/Eventos/ResponderPergunta
@@ -421,7 +445,7 @@ namespace TheLearningMaze_API.Controllers
             switch (r.tipoQuestao)
             {
                 case "A":
-                    foreach(Alternativa alt in alts)
+                    foreach (Alternativa alt in alts)
                     {
                         if (alt.correta && (alt.codAlternativa == r.alternativa))
                         {
@@ -432,9 +456,9 @@ namespace TheLearningMaze_API.Controllers
                     break;
 
                 case "T":
-                    foreach(Alternativa alt in alts)
+                    foreach (Alternativa alt in alts)
                     {
-                        if(alt.textoAlternativa.Trim() == r.texto.Trim())
+                        if (alt.textoAlternativa.Trim() == r.texto.Trim())
                         {
                             acertou = true;
                             break;
