@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Web;
 
 namespace TheLearningMaze_API.Models
@@ -19,6 +20,7 @@ namespace TheLearningMaze_API.Models
 
         public String email { get; set; }
 
+        [IgnoreDataMember]
         public Byte[] senha { get; set; }
 
         public Boolean ativo { get; set; }
