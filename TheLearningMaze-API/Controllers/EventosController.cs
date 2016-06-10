@@ -80,7 +80,7 @@ namespace TheLearningMaze_API.Controllers
                 .Where(e => e.codProfessor == tokenProf.codProfessor && e.codStatus == "A" && e.codTipoEvento == 4)
                 .OrderByDescending(d => d.data)
                 .FirstOrDefault();
-                
+
                 if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
             }
 
@@ -117,7 +117,7 @@ namespace TheLearningMaze_API.Controllers
 
             List<Object> retorno = new List<Object>();
 
-            foreach(Grupo grupo in grupos)
+            foreach (Grupo grupo in grupos)
             {
                 List<ParticipanteGrupo> pgs = db.ParticipanteGrupos
                                                 .Where(p => p.codGrupo == grupo.codGrupo)
@@ -126,7 +126,7 @@ namespace TheLearningMaze_API.Controllers
 
                 List<Participante> participantes = new List<Participante>();
 
-                foreach(ParticipanteGrupo pg in pgs)
+                foreach (ParticipanteGrupo pg in pgs)
                 {
                     Participante p = db.Participantes.Find(pg.codParticipante);
                     if (p == null) return Content(HttpStatusCode.NotFound, new { message = "Participante não encontrado" });
@@ -160,13 +160,13 @@ namespace TheLearningMaze_API.Controllers
 
             List<Object> retorno = new List<Object>();
 
-            foreach(Grupo grupo in grupos)
+            foreach (Grupo grupo in grupos)
             {
                 List<QuestaoGrupo> qgs = db.QuestaoGrupos
                                             .Where(qg => qg.codGrupo == grupo.codGrupo)
                                             .ToList();
                 int i = 0;
-                foreach(QuestaoGrupo qg in qgs)
+                foreach (QuestaoGrupo qg in qgs)
                 {
                     if (qg.correta) i++;
                 }
@@ -189,7 +189,7 @@ namespace TheLearningMaze_API.Controllers
 
             List<Questao> retorno = new List<Questao>();
 
-            foreach(int qe in questoes)
+            foreach (int qe in questoes)
             {
                 Questao q = db.Questaos.Find(qe);
                 if (q == null) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
@@ -235,7 +235,7 @@ namespace TheLearningMaze_API.Controllers
 
             List<MasterEventosOrdem> retorno = new List<MasterEventosOrdem>();
             Byte i = 0;
-            foreach(Grupo grupo in grupos)
+            foreach (Grupo grupo in grupos)
             {
                 ParticipanteGrupo pg = db.ParticipanteGrupos.Where(p => p.codGrupo == grupo.codGrupo).FirstOrDefault();
                 if (pg == null) return Content(HttpStatusCode.BadRequest, new { message = "Grupo não contém participantes" });
@@ -247,10 +247,45 @@ namespace TheLearningMaze_API.Controllers
                 db.MasterEventosOrdem.Add(ordem);
                 i++;
             }
-            
+
             db.SaveChanges();
 
             return Ok(retorno);
+        }
+
+        // POST: /api/Eventos/Abrir
+        [HttpPost]
+        [Route("api/Eventos/Abrir")]
+        public IHttpActionResult AbrirEvento(int eventoID)
+        {
+            // Seleciona evento e altera status
+            var evento = db.Eventos.FirstOrDefault(e => e.codEvento == eventoID);
+
+            if (evento == null)
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado." });
+
+            if (evento.codStatus != "C")
+                return Content(HttpStatusCode.BadRequest, new { message = "Evento já em execução, aberto ou finalizado." });
+
+            evento.codStatus = "A";
+            evento.data = DateTime.Now;
+            db.Entry(evento).State = EntityState.Modified;
+
+            var token = Request.Headers.Authorization.ToString();
+            // Faz decode do Token para extrair codProfessor e token original
+            var tokenProf = new TokenProf().DecodeToken(token);
+            var tokenProfessor = db.Tokens.FirstOrDefault(t => t.codProfessor == tokenProf.codProfessor);
+
+            if (tokenProfessor == null)
+            {
+                return Content(HttpStatusCode.BadRequest, new { message = "Professor não encontrado!" });
+            }
+
+            tokenProfessor.codEvento = eventoID;
+
+            db.SaveChanges();
+
+            return Ok();
         }
 
         // POST: /api/Eventos/Encerrar
@@ -278,7 +313,7 @@ namespace TheLearningMaze_API.Controllers
             if (e == null && e == 0) return Content(HttpStatusCode.BadRequest, new { message = "Não foi enviado evento válido!" });
             if (q == null) return Content(HttpStatusCode.BadRequest, new { message = "Não foram enviadas questões!" });
 
-            foreach(Questao questao in q)
+            foreach (Questao questao in q)
             {
                 QuestaoEvento qe = new QuestaoEvento
                                                     {
@@ -288,14 +323,14 @@ namespace TheLearningMaze_API.Controllers
                                                         tempo = null
                                                     };
 
-                db.QuestaoEventos.Add(qe);      
+                db.QuestaoEventos.Add(qe);
             }
 
             db.SaveChanges();
 
             return Ok();
         }
-        
+
         // POST: /api/Eventos/LancarPergunta
         [HttpPost]
         [Route("api/Eventos/LancarPergunta")]
