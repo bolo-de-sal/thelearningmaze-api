@@ -265,6 +265,7 @@
     <Compile Include="Controllers\GruposController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImagensController.cs" />
+    <Compile Include="Controllers\ParticipantesController.cs" />
     <Compile Include="Controllers\ProfessorsController.cs" />
     <Compile Include="Controllers\TokensController.cs" />
     <Compile Include="Custom\HttpStatusCodeCustom.cs" />
