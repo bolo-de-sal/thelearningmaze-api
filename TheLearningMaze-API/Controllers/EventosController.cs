@@ -108,7 +108,7 @@ namespace TheLearningMaze_API.Controllers
             List<Grupo> grupos = db.Grupos
                 .Where(g => g.codEvento == evento.codEvento)
                 .ToList();
-            if (grupos == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
+            if (grupos.Count <= 0) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
 
             List<Object> retorno = new List<Object>();
 
@@ -117,7 +117,7 @@ namespace TheLearningMaze_API.Controllers
                 List<ParticipanteGrupo> pgs = db.ParticipanteGrupos
                                                 .Where(p => p.codGrupo == grupo.codGrupo)
                                                 .ToList();
-                if (pgs.Count == 0) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem participantes" });
+                if (pgs.Count <= 0) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem participantes" });
 
                 List<Participante> participantes = new List<Participante>();
 
@@ -135,6 +135,9 @@ namespace TheLearningMaze_API.Controllers
                 var grupoFull = new { Grupo = grupo, ParticipantesGrupo = participantes, Assunto = assunto };
                 retorno.Add(grupoFull);
             }
+
+            if (retorno.Count <= 0)
+                return Content(HttpStatusCode.NotFound, new { message = "Ocorreu um erro ao trazer as informações do banco de dados. Por favor, tente novamente." });
 
             return Ok(retorno);
         }
@@ -404,7 +407,7 @@ namespace TheLearningMaze_API.Controllers
                 if (questao.codStatus != "C")
                     return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada!" });
 
-                const string sql = 
+                const string sql =
 @"UPDATE QuestaoEvento SET codStatus = 'E' WHERE codEvento = @codEvento AND codQuestao = @codQuestao";
 
                 try
