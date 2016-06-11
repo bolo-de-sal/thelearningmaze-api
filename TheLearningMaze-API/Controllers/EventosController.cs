@@ -104,7 +104,7 @@ namespace TheLearningMaze_API.Controllers
         {
             var evento = db.Eventos.Find(id);
 
-            if (evento == null) 
+            if (evento == null)
                 return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             List<Grupo> grupos = db.Grupos
@@ -129,7 +129,7 @@ namespace TheLearningMaze_API.Controllers
                 {
                     var p = db.Participantes.Find(pg.codParticipante);
 
-                    if (p == null) 
+                    if (p == null)
                         return Content(HttpStatusCode.NotFound, new { message = "Participante não encontrado" });
 
                     participantes.Add(p);
@@ -139,7 +139,7 @@ namespace TheLearningMaze_API.Controllers
                                     .Where(a => a.codAssunto == grupo.codAssunto)
                                     .FirstOrDefault();
 
-                if (assunto == null) 
+                if (assunto == null)
                     return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem assunto definido/Assunto não encontrado" });
 
                 var grupoFull = new { Grupo = grupo, ParticipantesGrupo = participantes, Assunto = assunto };
@@ -189,19 +189,23 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/Assuntos")]
         public IHttpActionResult GetAssuntos(int id)
         {
-            List<EventoAssunto> ea = db.EventoAssuntos
+            var assuntosEvento = db.EventoAssuntos
                                         .Where(e => e.codEvento == id)
                                         .ToList();
 
-            if (ea == null) return Content(HttpStatusCode.NotFound, new { message = "Não há assuntos cadastrados para o evento!" });
+            if (assuntosEvento.Count <= 0)
+                return Content(HttpStatusCode.NotFound, new { message = "Não há assuntos cadastrados para o evento!" });
 
-            List<Assunto> retorno = new List<Assunto>();
+            var retorno = new List<Assunto>();
 
-            foreach (EventoAssunto e in ea)
+            foreach (var item in assuntosEvento)
             {
-                Assunto a = db.Assuntos.Find(e.codAssunto);
-                if (a == null) return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
-                retorno.Add(a);
+                var assunto = db.Assuntos.Find(item.codAssunto);
+
+                if (assunto == null)
+                    return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
+
+                retorno.Add(assunto);
             }
 
             return Ok(retorno);
@@ -317,7 +321,7 @@ namespace TheLearningMaze_API.Controllers
 
         // POST: /api/Eventos/Abrir
         [HttpPost]
-        [Route("api/Eventos/Abrir")]
+        [Route("api/Eventos/{eventoID}/Abrir")]
         public IHttpActionResult AbrirEvento(int eventoID)
         {
             // Seleciona evento e altera status
