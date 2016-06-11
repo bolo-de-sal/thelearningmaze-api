@@ -13,7 +13,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    [ApiAuthFilter(true)]
+    //[ApiAuthFilter(true)]
     public class ParticipantesController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();

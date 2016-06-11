@@ -15,7 +15,7 @@ using Dapper;
 
 namespace TheLearningMaze_API.Controllers
 {
-    [ProfAuthFilter]
+    //[ProfAuthFilter]
     public class EventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -102,37 +102,48 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/GruposCompleto")]
         public IHttpActionResult GetGruposFull(int id)
         {
-            Evento evento = db.Eventos.Find(id);
-            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+            var evento = db.Eventos.Find(id);
+
+            if (evento == null) 
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             List<Grupo> grupos = db.Grupos
                 .Where(g => g.codEvento == evento.codEvento)
                 .ToList();
+
             if (grupos.Count <= 0) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
 
             List<Object> retorno = new List<Object>();
 
             foreach (Grupo grupo in grupos)
             {
-                List<ParticipanteGrupo> pgs = db.ParticipanteGrupos
+                var pgs = db.ParticipanteGrupos
                                                 .Where(p => p.codGrupo == grupo.codGrupo)
                                                 .ToList();
+
                 if (pgs.Count <= 0) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem participantes" });
 
-                List<Participante> participantes = new List<Participante>();
+                var participantes = new List<Participante>();
 
-                foreach (ParticipanteGrupo pg in pgs)
+                foreach (var pg in pgs)
                 {
-                    Participante p = db.Participantes.Find(pg.codParticipante);
-                    if (p == null) return Content(HttpStatusCode.NotFound, new { message = "Participante não encontrado" });
+                    var p = db.Participantes.Find(pg.codParticipante);
+
+                    if (p == null) 
+                        return Content(HttpStatusCode.NotFound, new { message = "Participante não encontrado" });
+
                     participantes.Add(p);
                 }
 
-                Assunto assunto = db.Assuntos
+                var assunto = db.Assuntos
                                     .Where(a => a.codAssunto == grupo.codAssunto)
                                     .FirstOrDefault();
-                if (assunto == null) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem assunto definido/Assunto não encontrado" });
+
+                if (assunto == null) 
+                    return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem assunto definido/Assunto não encontrado" });
+
                 var grupoFull = new { Grupo = grupo, ParticipantesGrupo = participantes, Assunto = assunto };
+
                 retorno.Add(grupoFull);
             }
 

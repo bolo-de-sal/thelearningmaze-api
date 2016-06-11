@@ -22,7 +22,7 @@ namespace TheLearningMaze_API.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Professors/5
-        [ApiAuthFilter(true)]
+        //[ApiAuthFilter(true)]
         [ResponseType(typeof(Professor))]
         public IHttpActionResult GetProfessor(int id)
         {
