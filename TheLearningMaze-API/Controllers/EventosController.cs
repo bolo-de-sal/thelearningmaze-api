@@ -140,9 +140,13 @@ namespace TheLearningMaze_API.Controllers
                                     .FirstOrDefault();
 
                 if (assunto == null)
-                    return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem assunto definido/Assunto não encontrado" });
+                    return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem assunto definido ou assunto não encontrado" });
 
-                var grupoFull = new { Grupo = grupo, ParticipantesGrupo = participantes, Assunto = assunto };
+                var acertos = db.QuestaoGrupos
+                                .Where(a => a.codGrupo == grupo.codGrupo && a.correta)
+                                .ToList();
+
+                var grupoFull = new { Grupo = grupo, ParticipantesGrupo = participantes, Assunto = assunto, Acertos = acertos.Count };
 
                 retorno.Add(grupoFull);
             }
@@ -240,19 +244,71 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
-        // GET: api/Eventos/5/QuestaoAtual
-        [Route("api/Eventos/{id}/QuestaoAtual")]
+        // GET: api/Eventos/5/InformacaoAtual
+        [Route("api/Eventos/{id}/InformacaoAtual")]
         public IHttpActionResult GetQuestaoAtual(int id)
         {
-            int? codQuestaoAtual = db.QuestaoEventos
-                                    .Where(q => q.codEvento == id && q.codStatus == "E")
-                                    .Select(q => q.codQuestao)
-                                    .FirstOrDefault();
-            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+            //SELECT TOP 1 g.nmGrupo, a.descricao, Count(qg.codGrupo) AS Quantidade, ordem FROM Grupo g
+            //INNER JOIN MasterEventosOrdem eo ( NOLOCK ) ON eo.codGrupo = g.codGrupo
+            //INNER JOIN Assunto a (NOLOCK) ON a.codAssunto = g.codAssunto
+            //LEFT JOIN QuestaoGrupo qg ( NOLOCK ) ON qg.codGrupo = g.codEvento
+            //WHERE codEvento = 10
+            //GROUP BY g.nmGrupo, a.descricao, g.codGrupo, eo.ordem
+            //ORDER BY Quantidade, ordem
+            var informacaoGrupoAtual = (from g in db.Grupos
+                                        join meo in db.MasterEventosOrdem on g.codGrupo equals meo.codGrupo
+                                        join a in db.Assuntos on g.codAssunto equals a.codAssunto
+                                        join qg in db.QuestaoGrupos on g.codGrupo equals qg.codGrupo into ia
+                                        from ia1 in ia.DefaultIfEmpty()
+                                        where g.codEvento == id
+                                        group ia1 by new { g.codGrupo, g.nmGrupo, a.codAssunto, a.descricao, meo.ordem} into infoAtual
+                                        orderby new {quantidade = infoAtual.Count(c => c != null), infoAtual.Key.ordem}
+                                        select new
+                                        {
+                                            infoAtual.Key.codGrupo,
+                                            infoAtual.Key.nmGrupo,
+                                            assunto = new
+                                            {
+                                                infoAtual.Key.codAssunto,
+                                                assunto = infoAtual.Key.descricao
+                                            },
+                                            quantidadePerguntasRespondidas = infoAtual.Count(c => c != null),
+                                            infoAtual.Key.ordem
+                                        }
+                                    ).FirstOrDefault();
 
-            Questao questao = db.Questaos.FirstOrDefault(q => q.codQuestao == codQuestaoAtual);
+            if (informacaoGrupoAtual == null) return Content(HttpStatusCode.NotFound, new { message = "Nenhum grupo encontrado" });
 
-            return Ok(questao);
+            //SELECT * FROM QuestaoEvento qe ( NOLOCK )
+            //INNER JOIN Questao q ( NOLOCK ) ON qe.codQuestao = q.codQuestao
+            //WHERE codEvento = 10 AND codStatus = 'E'
+            var informacaoQuestaoAtual = (from qe in db.QuestaoEventos
+                                          join q in db.Questaos on qe.codQuestao equals q.codQuestao
+                                          join a in db.Assuntos on q.codAssunto equals a.codAssunto
+                                          where qe.codEvento == id && qe.codStatus.Equals("E")
+                                          select new
+                                          {
+                                              q.codQuestao,
+                                              q.textoQuestao,
+                                              assunto = new
+                                              {
+                                                  a.codAssunto,
+                                                  a.descricao
+                                              },
+                                              q.codTipoQuestao,
+                                              q.codImagem,
+                                              q.dificuldade
+                                          }).FirstOrDefault();
+
+            if (informacaoQuestaoAtual == null) return Content(HttpStatusCode.NotFound, new { message = "Nenhuma questão encontrada" });
+            
+            var informacaoAtual = new
+            {
+                Grupo = informacaoGrupoAtual,
+                Questao = informacaoQuestaoAtual
+            };
+
+            return Ok(informacaoAtual);
         }
 
         // GET: api/Eventos/5/QuestaoAtual/Alternativas
