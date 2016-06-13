@@ -283,9 +283,9 @@ namespace TheLearningMaze_API.Controllers
             return Ok(alt);
         }
 
-        // GET: api/Eventos/5/InformacaoAtual
-        [Route("api/Eventos/{id}/InformacaoAtual")]
-        public IHttpActionResult GetInformacaoAtual(int id)
+        // GET: api/Eventos/5/InfoGrupoAtual
+        [Route("api/Eventos/{id}/InfoGrupoAtual")]
+        public IHttpActionResult GetInfoGrupoAtual(int id)
         {
             //SELECT TOP 1 g.nmGrupo, a.descricao, Count(qg.codGrupo) AS Quantidade, ordem FROM Grupo g
             //INNER JOIN MasterEventosOrdem eo ( NOLOCK ) ON eo.codGrupo = g.codGrupo
