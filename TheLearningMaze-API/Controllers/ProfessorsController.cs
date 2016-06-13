@@ -22,14 +22,14 @@ namespace TheLearningMaze_API.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: api/Professors/5
-        [ApiAuthFilter(true)]
+        //[ApiAuthFilter(true)]
         [ResponseType(typeof(Professor))]
         public IHttpActionResult GetProfessor(int id)
         {
             Professor professor = db.Professors.Find(id);
             if (professor == null)
             {
-                return NotFound();
+                return Content(HttpStatusCode.NotFound, new { message = "Professor não encontrado" });
             }
 
             return Ok(professor);
@@ -43,7 +43,7 @@ namespace TheLearningMaze_API.Controllers
         {
             if (professor.email == null || professor.senhaText == null)
             {
-                return BadRequest();
+                return Content(HttpStatusCode.BadRequest, new { message = "E-mail e/ou senha em branco" });
             }
             else
             {
@@ -60,7 +60,6 @@ namespace TheLearningMaze_API.Controllers
                                         .FirstOrDefault();
 
                     // Gera novo token com codProfessor embutido
-                    //byte[] newToken = System.Text.Encoding.ASCII.GetBytes(@"{""codProfessor"": """ + _professor.codProfessor + """, ""token"": """ + token + """}");
                     TokenProf tokenProf = new TokenProf(_professor.codProfessor, token);
                     byte[] newToken = tokenProf.GenerateToken(tokenProf);
 
@@ -72,7 +71,7 @@ namespace TheLearningMaze_API.Controllers
                 }
                 else
                 {
-                    return Unauthorized();
+                    return Content(HttpStatusCode.Unauthorized, new { message = "E-mail e/ou senha incorretos" });
                 }
             }
 
@@ -95,78 +94,6 @@ namespace TheLearningMaze_API.Controllers
 
             return Ok();
         }
-
-        //// GET: api/Professors
-        //public IQueryable<Professor> GetProfessors()
-        //{
-        //    return db.Professors;
-        //}
-
-        //// PUT: api/Professors/5
-        //[ResponseType(typeof(void))]
-        //public IHttpActionResult PutProfessor(int id, Professor professor)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    if (id != professor.codProfessor)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    db.Entry(professor).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        db.SaveChanges();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!ProfessorExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return StatusCode(HttpStatusCode.NoContent);
-        //}
-
-        //// POST: api/Professors
-        //[ResponseType(typeof(Professor))]
-        //public IHttpActionResult PostProfessor(Professor professor)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    db.Professors.Add(professor);
-        //    db.SaveChanges();
-
-        //    return CreatedAtRoute("DefaultApi", new { id = professor.codProfessor }, professor);
-        //}
-
-        //// DELETE: api/Professors/5
-        //[ResponseType(typeof(Professor))]
-        //public IHttpActionResult DeleteProfessor(int id)
-        //{
-        //    Professor professor = db.Professors.Find(id);
-        //    if (professor == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    db.Professors.Remove(professor);
-        //    db.SaveChanges();
-
-        //    return Ok(professor);
-        //}
 
         protected override void Dispose(bool disposing)
         {

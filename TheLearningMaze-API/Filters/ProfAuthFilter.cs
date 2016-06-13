@@ -6,12 +6,9 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Web;
-using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using TheLearningMaze_API.Custom;
 using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Filters
@@ -23,7 +20,8 @@ namespace TheLearningMaze_API.Filters
 
         public ProfAuthFilter()
         {
-            /*this.v = v*/;
+            /*this.v = v*/
+            ;
         }
 
         protected bool OnAuthorizeUser(string token, HttpActionContext actionContext)
@@ -33,45 +31,50 @@ namespace TheLearningMaze_API.Filters
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
-            if (AuthorizeRequest(actionContext))
+            HttpStatusCodeCustom status = AuthorizeRequest(actionContext);
+
+            if (status == HttpStatusCodeCustom.OK)
             {
                 return;
             }
-            
-            HandleUnauthorizedRequest(actionContext);
+
+            HandleUnauthorizedRequest(actionContext, status);
         }
 
-        protected void HandleUnauthorizedRequest(HttpActionContext actionContext)
+        protected void HandleUnauthorizedRequest(HttpActionContext actionContext, HttpStatusCodeCustom status)
         {
-            actionContext.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+            actionContext.Response = new HttpResponseMessage((HttpStatusCode)status);
             return;
         }
 
-        private bool AuthorizeRequest(HttpActionContext actionContext)
+        private HttpStatusCodeCustom AuthorizeRequest(HttpActionContext actionContext)
         {
-            // Verifica se o cabeçalho contém "Authorization"
-            if (actionContext.Request.Headers.Authorization != null)
+            using (var dbContext = new ApplicationDbContext())
             {
-                string token = actionContext.Request.Headers.Authorization.ToString();
+                // Verifica se o cabeçalho contém "Authorization"
+                if (actionContext.Request.Headers.Authorization == null)
+                    return HttpStatusCodeCustom.Unauthorized; //Se token não existe
+
+                var token = actionContext.Request.Headers.Authorization.ToString();
 
                 // Faz decode do Token para extrair codProfessor e token original
-                TokenProf tokenProf = new TokenProf().DecodeToken(token);
+                var tokenProf = new TokenProf().DecodeToken(token);
 
-                Token tokenEntity = db.Tokens
-                                        .Where(t => t.token == tokenProf.token)
-                                        .FirstOrDefault();
-                if (tokenEntity != null && tokenEntity.expiraEm >= DateTime.Now && tokenProf.codProfessor == tokenEntity.codProfessor)
-                {
-                    // Adiciona 15 minutos ao tempo de expiração
-                    tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
-                    db.Entry(tokenEntity).State = EntityState.Modified;                    
-                    db.SaveChanges();
+                var tokenEntity = dbContext.Tokens.FirstOrDefault(t => t.token == tokenProf.token);
 
-                    return true;
-                }
+                if (tokenEntity == null || tokenProf.codProfessor != tokenEntity.codProfessor)
+                    return HttpStatusCodeCustom.Unauthorized; //Se token não existe
+
+                if (tokenEntity.expiraEm < DateTime.Now)
+                    return HttpStatusCodeCustom.TokenExpired; //Se token existe mas expirou
+
+                // Adiciona 15 minutos ao tempo de expiração
+                tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
+                dbContext.Entry(tokenEntity).State = EntityState.Modified;
+                dbContext.SaveChanges();
+
+                return HttpStatusCodeCustom.OK; //Se token existe e é válido
             }
-
-            return false;
         }
     }
 }

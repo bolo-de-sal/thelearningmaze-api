@@ -8,98 +8,82 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using TheLearningMaze_API.Filters;
 using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
+    //[ApiAuthFilter(true)]
     public class ParticipantesController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/Participantes
-        public IQueryable<Participante> GetParticipantes()
+        // GET: api/Participantes/5/QuestaoAtual
+        [Route("api/Participantes/{id}/QuestaoAtual")]
+        public IHttpActionResult GetQuestaoAtual(int id)
         {
-            return db.Participantes;
+            int? codQuestaoAtual = db.QuestaoEventos
+                                    .Where(q => q.codEvento == id && q.codStatus == "E")
+                                    .Select(q => q.codQuestao)
+                                    .FirstOrDefault();
+            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+
+            Questao questao = db.Questaos.FirstOrDefault(q => q.codQuestao == codQuestaoAtual);
+
+            return Ok(questao);
         }
 
-        // GET: api/Participantes/5
-        [ResponseType(typeof(Participante))]
-        public IHttpActionResult GetParticipante(int id)
+        // GET: api/Participantes/5/QuestaoAtual/Alternativas
+        [Route("api/Participantes/{id}/QuestaoAtual/Alternativas")]
+        public IHttpActionResult GetQuestaoAtualAlternativas(int id)
         {
-            Participante participante = db.Participantes.Find(id);
-            if (participante == null)
-            {
-                return NotFound();
-            }
+            int? codQuestaoAtual = db.QuestaoEventos
+                                    .Where(q => q.codEvento == id && q.codStatus == "E")
+                                    .Select(q => q.codQuestao)
+                                    .FirstOrDefault();
+            if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
 
-            return Ok(participante);
+            string tipoQuestao = db.Questaos
+                        .Where(q => q.codQuestao == codQuestaoAtual)
+                        .Select(q => q.codTipoQuestao)
+                        .FirstOrDefault();
+
+            if (tipoQuestao != "A") return Content(HttpStatusCode.BadRequest, new { message = "Questão não é de alternativas!" });
+
+            List<Alternativa> alt = db.Alternativas
+                                .Where(e => e.codQuestao == codQuestaoAtual)
+                                .ToList();
+
+            return Ok(alt);
         }
 
-        // PUT: api/Participantes/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutParticipante(int id, Participante participante)
+        // POST: api/Participantes/RegistrarPerguntas
+        [HttpPost]
+        [Route("api/Participantes/RegistrarPerguntas")]
+        public IHttpActionResult RegistrarPerguntas(Evento ev, Questao[] q)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            int? e = db.Eventos.Where(w => w.codEvento == ev.codEvento).Select(w => w.codEvento).FirstOrDefault();
+            if (e == null && e == 0) return Content(HttpStatusCode.BadRequest, new { message = "Não foi enviado evento válido!" });
+            if (q == null) return Content(HttpStatusCode.BadRequest, new { message = "Não foram enviadas questões!" });
 
-            if (id != participante.codParticipante)
+            foreach (Questao questao in q)
             {
-                return BadRequest();
-            }
-
-            db.Entry(participante).State = EntityState.Modified;
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ParticipanteExists(id))
+                QuestaoEvento qe = new QuestaoEvento
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                    codEvento = ev.codEvento,
+                    codQuestao = questao.codQuestao,
+                    codStatus = "C",
+                    tempo = null
+                };
+
+                db.QuestaoEventos.Add(qe);
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        // POST: api/Participantes
-        [ResponseType(typeof(Participante))]
-        public IHttpActionResult PostParticipante(Participante participante)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            db.Participantes.Add(participante);
             db.SaveChanges();
 
-            return CreatedAtRoute("DefaultApi", new { id = participante.codParticipante }, participante);
+            return Ok();
         }
 
-        // DELETE: api/Participantes/5
-        [ResponseType(typeof(Participante))]
-        public IHttpActionResult DeleteParticipante(int id)
-        {
-            Participante participante = db.Participantes.Find(id);
-            if (participante == null)
-            {
-                return NotFound();
-            }
-
-            db.Participantes.Remove(participante);
-            db.SaveChanges();
-
-            return Ok(participante);
-        }
 
         protected override void Dispose(bool disposing)
         {
