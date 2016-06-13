@@ -320,7 +320,7 @@ namespace TheLearningMaze_API.Controllers
                                    }
                                   ).FirstOrDefault();
 
-            if (informacaoGrupo == null) return Content(HttpStatusCode.NotFound, new { message = "Nenhum grupo encontrado" });
+            //if (informacaoGrupo == null) return Content(HttpStatusCode.NotFound, new { message = "Nenhum grupo encontrado" });
 
             var eventoAssuntos = (from ea in db.EventoAssuntos
                                   join a in db.Assuntos on ea.codAssunto equals a.codAssunto
@@ -402,7 +402,7 @@ namespace TheLearningMaze_API.Controllers
                                               q.dificuldade
                                           }).FirstOrDefault();
 
-            if (informacaoQuestaoAtual == null) return Content(HttpStatusCode.NotFound, new { message = "Nenhuma questão encontrada" });
+            //if (informacaoQuestaoAtual == null) return Content(HttpStatusCode.NotFound, new { message = "Nenhuma questão encontrada" });
 
             var informacaoAtual = new
             {
