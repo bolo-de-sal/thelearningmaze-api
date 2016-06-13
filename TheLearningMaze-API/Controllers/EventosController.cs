@@ -30,7 +30,7 @@ namespace TheLearningMaze_API.Controllers
             var tokenProf = new TokenProf().DecodeToken(token);
 
             var eventos = db.Eventos
-                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codTipoEvento == 4)
+                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codTipoEvento == 4 && e.codStatus != "E")
                 .OrderByDescending(d => d.data)
                 .ToList();
 
@@ -220,7 +220,7 @@ namespace TheLearningMaze_API.Controllers
         public IHttpActionResult GetQuestoesEvento(int id)
         {
             var questoes = db.QuestaoEventos
-                             .Where(q => q.codEvento == id)
+                             .Where(q => q.codEvento == id && q.codStatus != "E")
                              .Select(q => q.codQuestao)
                              .ToList();
             if (questoes == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas!" });
