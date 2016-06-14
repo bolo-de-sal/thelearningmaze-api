@@ -503,7 +503,7 @@ namespace TheLearningMaze_API.Controllers
             evento.data = DateTime.Now;
             db.Entry(evento).State = EntityState.Modified;
 
-            tokenProfessor.codEvento = eventoID;
+            tokenProfessor.codEvento = ev.codEvento;
 
             db.SaveChanges();
 
