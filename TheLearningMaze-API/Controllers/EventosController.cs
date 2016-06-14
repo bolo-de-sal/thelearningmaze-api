@@ -30,7 +30,10 @@ namespace TheLearningMaze_API.Controllers
             var tokenProf = new TokenProf().DecodeToken(token);
 
             var eventos = db.Eventos
-                .Where(e => e.codProfessor == tokenProf.codProfessor && e.codTipoEvento == 4 && e.codStatus != "E")
+                .Where(e => e.codProfessor == tokenProf.codProfessor 
+                        && e.codTipoEvento == 4 
+                        && e.codStatus != "E"
+                        && e.codStatus != "A")
                 .OrderByDescending(d => d.data)
                 .ToList();
 
