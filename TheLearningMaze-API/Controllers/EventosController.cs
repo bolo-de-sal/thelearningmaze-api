@@ -90,6 +90,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/Grupos")]
         public IHttpActionResult GetGruposEvento(int id)
         {
+            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             Evento evento = db.Eventos.Find(id);
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
@@ -105,6 +107,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/GruposCompleto")]
         public IHttpActionResult GetGruposFull(int id)
         {
+            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             var evento = db.Eventos.Find(id);
 
             if (evento == null)
@@ -164,6 +168,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/Acertos")]
         public IHttpActionResult GetAcertosGrupos(int id)
         {
+            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             Evento evento = db.Eventos.Find(id);
 
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
@@ -196,6 +202,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/Assuntos")]
         public IHttpActionResult GetAssuntos(int id)
         {
+            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             var assuntosEvento = db.EventoAssuntos
                                         .Where(e => e.codEvento == id)
                                         .ToList();
@@ -222,6 +230,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/Questoes")]
         public IHttpActionResult GetQuestoesEvento(int id)
         {
+            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             var questoes = db.QuestaoEventos
                              .Where(q => q.codEvento == id && q.codStatus != "E")
                              .Select(q => q.codQuestao)
@@ -251,6 +261,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/QuestaoAtual")]
         public IHttpActionResult GetQuestaoAtual(int id)
         {
+            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             int? codQuestaoAtual = db.QuestaoEventos
                                     .Where(q => q.codEvento == id && q.codStatus == "E")
                                     .Select(q => q.codQuestao)
@@ -266,6 +278,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/QuestaoAtual/Alternativas")]
         public IHttpActionResult GetQuestaoAtualAlternativas(int id)
         {
+            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             int? codQuestaoAtual = db.QuestaoEventos
                                     .Where(q => q.codEvento == id && q.codStatus == "E")
                                     .Select(q => q.codQuestao)
@@ -290,6 +304,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/InfoGrupoAtual")]
         public IHttpActionResult GetInfoGrupoAtual(int id)
         {
+            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             //SELECT TOP 1 g.nmGrupo, a.descricao, Count(qg.codGrupo) AS Quantidade, ordem FROM Grupo g
             //INNER JOIN MasterEventosOrdem eo ( NOLOCK ) ON eo.codGrupo = g.codGrupo
             //INNER JOIN Assunto a (NOLOCK) ON a.codAssunto = g.codAssunto
@@ -434,6 +450,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/Iniciar")]
         public IHttpActionResult IniciarEvento(Evento ev)
         {
+            if (!this.ValidaProfessor(ev.codEvento)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             // Seleciona evento e altera status
             Evento evento = db.Eventos.Find(ev.codEvento);
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
@@ -474,6 +492,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/Abrir")]
         public IHttpActionResult AbrirEvento(Evento ev)
         {
+            if (!this.ValidaProfessor(ev.codEvento)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             // Seleciona evento e altera status
             var evento = db.Eventos.FirstOrDefault(e => e.codEvento == ev.codEvento);
 
@@ -518,6 +538,11 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/Encerrar")]
         public IHttpActionResult EncerrarEvento(Evento ev)
         {
+            if (!this.ValidaProfessor(ev.codEvento)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
+            //TO-DO
+            //encerrar todas as questoes abertas
+
             // Seleciona evento e altera status
             Evento evento = db.Eventos.Find(ev.codEvento);
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
@@ -534,6 +559,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/RegistrarPerguntas")]
         public IHttpActionResult RegistrarPerguntas(Evento ev, Questao[] q)
         {
+            if (!this.ValidaProfessor(ev.codEvento)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             int? e = db.Eventos.Where(w => w.codEvento == ev.codEvento).Select(w => w.codEvento).FirstOrDefault();
             if (e == null && e == 0) return Content(HttpStatusCode.BadRequest, new { message = "Não foi enviado evento válido!" });
             if (q == null) return Content(HttpStatusCode.BadRequest, new { message = "Não foram enviadas questões!" });
@@ -561,6 +588,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/LancarPergunta")]
         public IHttpActionResult LancarPergunta(QuestaoEvento requestQuestao)
         {
+            if (!this.ValidaProfessor(requestQuestao.codEvento)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             using (var dbContext = new ApplicationDbContext())
             {
                 var questao = dbContext.QuestaoEventos
@@ -597,6 +626,8 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/ResponderPergunta")]
         public IHttpActionResult ResponderPergunta(Resposta r)
         {
+            if (!this.ValidaProfessor(r.codEvento)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+
             int? codQuestaoAtual = db.QuestaoEventos
                                     .Where(q => q.codEvento == r.codEvento && q.codStatus == "E")
                                     .Select(q => q.codQuestao)
@@ -673,6 +704,24 @@ namespace TheLearningMaze_API.Controllers
         private bool EventoExists(int id)
         {
             return db.Eventos.Count(e => e.codEvento == id) > 0;
+        }
+
+        private bool ValidaProfessor(int codEvento)
+        {
+            var token = Request.Headers.Authorization.ToString();
+            // Faz decode do Token para extrair codProfessor e token original
+            var tokenProf = new TokenProf().DecodeToken(token);
+
+            using (ApplicationDbContext _db = new ApplicationDbContext())
+            {
+                int codProfessor = db.Eventos
+                                    .Where(e => e.codEvento == codEvento)
+                                    .Select(e => e.codProfessor)
+                                    .FirstOrDefault();
+
+                if (tokenProf.codProfessor == codProfessor) return true;
+                else return false;
+            }
         }
     }
 }
