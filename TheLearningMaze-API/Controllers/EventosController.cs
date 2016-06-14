@@ -174,16 +174,16 @@ namespace TheLearningMaze_API.Controllers
 
             foreach (Grupo grupo in grupos)
             {
-                List<QuestaoGrupo> qgs = db.QuestaoGrupos
-                                            .Where(qg => qg.codGrupo == grupo.codGrupo)
-                                            .ToList();
-                int i = 0;
-                foreach (QuestaoGrupo qg in qgs)
+                List<QuestaoGrupo> qg = db.QuestaoGrupos
+                                .Where(q => q.codGrupo == grupo.codGrupo)
+                                .OrderBy(q => q.tempo)
+                                .ToList();
+
+                retorno.Add(new
                 {
-                    if (qg.correta) i++;
-                }
-                var acertosGrupo = new { codGrupo = grupo.codGrupo, acertos = i };
-                retorno.Add(acertosGrupo);
+                    Grupo = grupo,
+                    Questoes = qg
+                });
             }
 
             return Ok(retorno);
@@ -336,21 +336,29 @@ namespace TheLearningMaze_API.Controllers
             var descricaoAssuntoAtual = string.Empty;
             var qtdMovimentosAssuntos = 0;
             var indexCodAssunto = eventoAssuntos.FindIndex(f => f.codAssunto == informacaoGrupo.assunto.codAssunto);
+            var dificuldadeAtual = "F";
 
             switch (informacaoGrupo.questao.qtdAcertos)
             {
                 case 4:
                     qtdMovimentosAssuntos += 1;
+                    dificuldadeAtual = "M";
                     break;
                 case 5:
                     qtdMovimentosAssuntos += 2;
+                    dificuldadeAtual = "M";
                     break;
                 case 6:
                     qtdMovimentosAssuntos += 3;
+                    dificuldadeAtual = "M";
                     break;
                 case 7:
+                    qtdMovimentosAssuntos += 4;
+                    dificuldadeAtual = "M";
+                    break;
                 case 8:
                     qtdMovimentosAssuntos += 4;
+                    dificuldadeAtual = "D";
                     break;
                 default:
                     qtdMovimentosAssuntos = 0;
@@ -376,7 +384,12 @@ namespace TheLearningMaze_API.Controllers
                     codAssunto = codAssuntoAtual,
                     descricao = descricaoAssuntoAtual
                 },
-                informacaoGrupo.questao,
+                questao = new
+                {
+                    informacaoGrupo.questao.qtdRespondidas,
+                    informacaoGrupo.questao.qtdAcertos,
+                    dificuldade = dificuldadeAtual
+                },
                 informacaoGrupo.ordem
             };
 
