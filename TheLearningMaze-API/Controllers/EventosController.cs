@@ -164,9 +164,9 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
-        // GET: /api/Eventos/5/Acertos
-        [Route("api/Eventos/{id}/Acertos")]
-        public IHttpActionResult GetAcertosGrupos(int id)
+        // GET: /api/Eventos/5/GruposQuestoes
+        [Route("api/Eventos/{id}/GruposQuestoes")]
+        public IHttpActionResult GetGruposQuestoes(int id)
         {
             if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
 
