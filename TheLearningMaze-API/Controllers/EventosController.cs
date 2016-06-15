@@ -708,6 +708,8 @@ namespace TheLearningMaze_API.Controllers
             questaoGrupo.tempo = DateTime.Now;
             questaoGrupo.correta = acertou;
 
+            questaoAtual.codStatus = "F";
+
             switch (resposta.tipoQuestao)
             {
                 case "T":
