@@ -32,8 +32,7 @@ namespace TheLearningMaze_API.Controllers
             var eventos = db.Eventos
                 .Where(e => e.codProfessor == tokenProf.codProfessor
                         && e.codTipoEvento == 4
-                        && e.codStatus != "E"
-                        && e.codStatus != "A")
+                        && e.codStatus != "E")
                 .OrderByDescending(d => d.data)
                 .ToList();
 
