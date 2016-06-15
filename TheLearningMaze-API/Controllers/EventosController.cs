@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web.Configuration;
 using System.Web.Http;
 using System.Web.Http.Description;
 using TheLearningMaze_API.Filters;
@@ -59,6 +61,29 @@ namespace TheLearningMaze_API.Controllers
             var evento = db.Eventos.FirstOrDefault(e => e.codEvento == id);
 
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+
+            return Ok(evento);
+        }
+
+        // GET: api/Eventos/Ativo
+        [ResponseType(typeof(Evento))]
+        [Route("api/Evento/{grupoID}/{participanteID}")]
+        public IHttpActionResult GetEventoPorGrupo(int grupoID, int participanteID)
+        {
+            var grupo = db.Grupos.FirstOrDefault(g => g.codGrupo == grupoID);
+
+            if (grupo == null)
+                return Content(HttpStatusCode.NotFound, new { message = "Grupo não encontrado" });
+
+            var participante = db.ParticipanteGrupos.FirstOrDefault(p => p.codGrupo == grupoID && p.codParticipante == participanteID);
+
+            if (participante == null)
+                return Content(HttpStatusCode.NotFound, new { message = "Participante não encontrado" });
+
+            var evento = db.Eventos.FirstOrDefault(e => e.codEvento == grupo.codEvento);
+
+            if (evento == null)
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             return Ok(evento);
         }
@@ -293,41 +318,36 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/QuestaoAtual/Alternativas")]
         public IHttpActionResult GetQuestaoAtualAlternativas(int id)
         {
-            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+            if (!this.ValidaProfessor(id))
+                return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento" });
 
-            int? codQuestaoAtual = db.QuestaoEventos
-                                    .Where(q => q.codEvento == id && q.codStatus == "E")
-                                    .Select(q => q.codQuestao)
-                                    .FirstOrDefault();
-            if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento" });
+            var questaoSendoRespondida = db.QuestaoEventos.FirstOrDefault(q => q.codEvento == id && q.codStatus == "E");
 
-            var tipoQuestao = db.Questaos
+            if (questaoSendoRespondida == null || questaoSendoRespondida.codQuestao == 0)
+                return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento" });
+
+            var questaoAtual = db.Questaos.FirstOrDefault(q => q.codQuestao == questaoSendoRespondida.codQuestao);
+
+            string tipoQuestao = db.Questaos
                         .Where(q => q.codQuestao == codQuestaoAtual)
                         .Select(q => q.codTipoQuestao)
                         .FirstOrDefault();
 
-            if (tipoQuestao != "A") return Content(HttpStatusCode.BadRequest, new { message = "Questão não é de alternativas" });
+            if (questaoAtual.codTipoQuestao != "A")
+                return Content(HttpStatusCode.BadRequest, new { message = "Questão não é de alternativas" });
 
-            var alt = db.Alternativas
-                                .Where(e => e.codQuestao == codQuestaoAtual)
-                                .ToList();
+            var alternativas = db.Alternativas.Where(e => e.codQuestao == questaoAtual.codQuestao).ToList();
 
-            return Ok(alt);
+            return Ok(alternativas);
         }
 
         // GET: api/Eventos/5/InfoGrupoAtual
         [Route("api/Eventos/{id}/InfoGrupoAtual")]
         public IHttpActionResult GetInfoGrupoAtual(int id)
         {
-            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+            if (!this.ValidaProfessor(id))
+                return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
 
-            //SELECT TOP 1 g.nmGrupo, a.descricao, Count(qg.codGrupo) AS Quantidade, ordem FROM Grupo g
-            //INNER JOIN MasterEventosOrdem eo ( NOLOCK ) ON eo.codGrupo = g.codGrupo
-            //INNER JOIN Assunto a (NOLOCK) ON a.codAssunto = g.codAssunto
-            //LEFT JOIN QuestaoGrupo qg ( NOLOCK ) ON qg.codGrupo = g.codEvento
-            //WHERE codEvento = 10
-            //GROUP BY g.nmGrupo, a.descricao, g.codGrupo, eo.ordem
-            //ORDER BY Quantidade, ordem
             var informacaoGrupo = (from g in db.Grupos
                                    join meo in db.MasterEventosOrdem on g.codGrupo equals meo.codGrupo
                                    join a in db.Assuntos on g.codAssunto equals a.codAssunto
@@ -354,8 +374,6 @@ namespace TheLearningMaze_API.Controllers
                                    }
                                   ).FirstOrDefault();
 
-            //if (informacaoGrupo == null) return Content(HttpStatusCode.NotFound, new { message = "Nenhum grupo encontrado" });
-
             var eventoAssuntos = (from ea in db.EventoAssuntos
                                   join a in db.Assuntos on ea.codAssunto equals a.codAssunto
                                   where ea.codEvento == id
@@ -366,7 +384,6 @@ namespace TheLearningMaze_API.Controllers
                                   }
                                  ).ToList();
 
-            var codAssuntoAtual = 0;
             var qtdMovimentosAssuntos = 0;
             var indexCodAssunto = eventoAssuntos.FindIndex(f => f.codAssunto == informacaoGrupo.assunto.codAssunto);
             var dificuldadeAtual = "F";
@@ -398,7 +415,7 @@ namespace TheLearningMaze_API.Controllers
                     break;
             }
 
-            var tempoQuestaoAtual = dificuldadeAtual.Equals("F") ? 30 : dificuldadeAtual.Equals("M") ? 45 : 60;
+            var tempoQuestaoAtual = dificuldadeAtual.Equals("F") ? WebConfigurationManager.AppSettings["tempoQuestaoFacil"] : dificuldadeAtual.Equals("M") ? WebConfigurationManager.AppSettings["tempoQuestaoMedia"] : WebConfigurationManager.AppSettings["tempoQuestaoDificil"];
 
             var indexCodAssuntoAtual = indexCodAssunto + qtdMovimentosAssuntos;
 
@@ -407,7 +424,7 @@ namespace TheLearningMaze_API.Controllers
                 indexCodAssuntoAtual = indexCodAssuntoAtual - eventoAssuntos.Count - 1;
             }
 
-            codAssuntoAtual = eventoAssuntos[indexCodAssuntoAtual].codAssunto;
+            var codAssuntoAtual = eventoAssuntos[indexCodAssuntoAtual].codAssunto;
             var descricaoAssuntoAtual = eventoAssuntos[indexCodAssuntoAtual].descricao;
 
             var informacaoGrupoAtual = new
@@ -428,10 +445,6 @@ namespace TheLearningMaze_API.Controllers
                 informacaoGrupo.ordem
             };
 
-
-            //SELECT * FROM QuestaoEvento qe ( NOLOCK )
-            //INNER JOIN Questao q ( NOLOCK ) ON qe.codQuestao = q.codQuestao
-            //WHERE codEvento = 10 AND codStatus = 'E'
             var informacaoQuestaoAtual = (from qe in db.QuestaoEventos
                                           join q in db.Questaos on qe.codQuestao equals q.codQuestao
                                           join a in db.Assuntos on q.codAssunto equals a.codAssunto
