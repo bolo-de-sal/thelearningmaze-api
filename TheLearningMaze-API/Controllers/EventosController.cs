@@ -477,6 +477,22 @@ namespace TheLearningMaze_API.Controllers
             Evento evento = db.Eventos.Find(ev.codEvento);
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
             if (evento.codStatus == "E" && evento.codStatus == "F") return Content(HttpStatusCode.BadRequest, new { message = "Evento já em execução ou finalizado" });
+
+            // Verificar integridade do evento pra não iniciar malucão
+            var quantGrupos = db.Grupos.Count(g => g.codEvento == evento.codEvento);
+            if (quantGrupos < 4)
+                return Content(HttpStatusCode.BadRequest, new {message = "Evento não tem grupos suficientes!"});
+
+            var quantAssuntosGrupo =
+                db.Grupos.Where(g => g.codEvento == evento.codEvento).Select(g => g.codAssunto).Distinct();
+            var quantAssuntos =
+                db.EventoAssuntos.Where(g => g.codEvento == evento.codEvento).Select(g => g.codAssunto).Distinct();
+            if (quantAssuntos.Count() < 4) // Se o evento tem menos de 4 assuntos
+                return Content(HttpStatusCode.BadRequest,
+                    new {message = "Evento não tem quantidade de assuntos suficientes!"});
+            if (quantAssuntos.Count() < quantAssuntosGrupo.Count()) // Se tem mais assuntos escolhidos nos grupos do que disponíveis no evento
+                return Content(HttpStatusCode.BadRequest, new {message = "Quantidade de assuntos inconsistente!"});
+
             evento.codStatus = "E";
             evento.data = DateTime.Now;
             db.Entry(evento).State = EntityState.Modified;
@@ -492,12 +508,14 @@ namespace TheLearningMaze_API.Controllers
             Byte i = 0;
             foreach (Grupo grupo in grupos)
             {
-                ParticipanteGrupo pg = db.ParticipanteGrupos.Where(p => p.codGrupo == grupo.codGrupo).FirstOrDefault();
+                ParticipanteGrupo pg = db.ParticipanteGrupos.FirstOrDefault(p => p.codGrupo == grupo.codGrupo);
                 if (pg == null) return Content(HttpStatusCode.BadRequest, new { message = "Grupo não contém participantes" });
 
-                MasterEventosOrdem ordem = new MasterEventosOrdem();
-                ordem.codGrupo = grupo.codGrupo;
-                ordem.ordem = i;
+                MasterEventosOrdem ordem = new MasterEventosOrdem
+                {
+                    codGrupo = grupo.codGrupo,
+                    ordem = i
+                };
                 retorno.Add(ordem);
                 db.MasterEventosOrdem.Add(ordem);
                 i++;
