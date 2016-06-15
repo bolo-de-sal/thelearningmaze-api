@@ -26,5 +26,8 @@ namespace TheLearningMaze_API.Models
         public Boolean ativo { get; set; }
 
         public String dificuldade { get; set; }
+
+        [NotMapped]
+        public int tempo { get; set; }
     }
 }

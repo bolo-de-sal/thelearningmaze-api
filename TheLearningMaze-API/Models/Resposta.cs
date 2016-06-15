@@ -13,7 +13,7 @@ namespace TheLearningMaze_API.Models
 
         public int alternativa { get; set; }
 
-        public Boolean verdadeiro { get; set; }
+        public bool verdadeiro { get; set; }
 
         public string texto { get; set; }
     }
