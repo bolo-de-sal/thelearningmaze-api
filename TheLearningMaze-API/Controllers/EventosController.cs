@@ -15,7 +15,7 @@ using Dapper;
 
 namespace TheLearningMaze_API.Controllers
 {
-    //[ProfAuthFilter]
+    [ProfAuthFilter]
     public class EventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -74,13 +74,18 @@ namespace TheLearningMaze_API.Controllers
             // Faz decode do Token para extrair codProfessor e token original
             var tokenProf = new TokenProf().DecodeToken(token);
 
-            var evento = db.Eventos
-                .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "E" || e.codStatus == "A") && e.codTipoEvento == 4)
-                .OrderByDescending(d => d.data)
-                .FirstOrDefault();
 
-            if (evento == null)
-                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+            // Prioriza evento E
+            var evento = db.Eventos
+                .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "E") && e.codTipoEvento == 4)
+                .OrderByDescending(d => d.data)
+                .FirstOrDefault() 
+                ?? db.Eventos
+                    .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "A") && e.codTipoEvento == 4)
+                    .OrderByDescending(d => d.data)
+                    .FirstOrDefault();
+
+            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             return Ok(evento);
         }
@@ -236,7 +241,7 @@ namespace TheLearningMaze_API.Controllers
                              .Where(q => q.codEvento == id && q.codStatus != "E")
                              .Select(q => q.codQuestao)
                              .ToList();
-            if (questoes == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas" });
+            if (questoes.Count <= 0) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas" });
 
             List<Object> retorno = new List<Object>();
 
@@ -738,13 +743,13 @@ namespace TheLearningMaze_API.Controllers
 
         private bool ValidaProfessor(int codEvento)
         {
-            var token = Request.Headers.Authorization.ToString();
             // Faz decode do Token para extrair codProfessor e token original
+            var token = Request.Headers.Authorization.ToString();
             var tokenProf = new TokenProf().DecodeToken(token);
 
             using (ApplicationDbContext _db = new ApplicationDbContext())
             {
-                int codProfessor = db.Eventos
+                int codProfessor = _db.Eventos
                                     .Where(e => e.codEvento == codEvento)
                                     .Select(e => e.codProfessor)
                                     .FirstOrDefault();
