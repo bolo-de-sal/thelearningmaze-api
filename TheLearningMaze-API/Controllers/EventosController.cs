@@ -77,7 +77,7 @@ namespace TheLearningMaze_API.Controllers
                 .FirstOrDefault();
 
             if (evento == null)
-                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado." });
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             return Ok(evento);
         }
@@ -148,7 +148,7 @@ namespace TheLearningMaze_API.Controllers
             }
 
             if (retorno.Count <= 0)
-                return Content(HttpStatusCode.NotFound, new { message = "Ocorreu um erro ao trazer as informações do banco de dados. Por favor, tente novamente." });
+                return Content(HttpStatusCode.NotFound, new { message = "Ocorreu um erro ao trazer as informações do banco de dados. Por favor, tente novament." });
 
             return Ok(retorno);
         }
@@ -194,7 +194,7 @@ namespace TheLearningMaze_API.Controllers
                                         .ToList();
 
             if (assuntosEvento.Count <= 0)
-                return Content(HttpStatusCode.NotFound, new { message = "Não há assuntos cadastrados para o evento!" });
+                return Content(HttpStatusCode.NotFound, new { message = "Não há assuntos cadastrados para o event!" });
 
             var retorno = new List<Assunto>();
 
@@ -203,7 +203,7 @@ namespace TheLearningMaze_API.Controllers
                 var assunto = db.Assuntos.Find(item.codAssunto);
 
                 if (assunto == null)
-                    return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
+                    return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrad!" });
 
                 retorno.Add(assunto);
             }
@@ -219,16 +219,16 @@ namespace TheLearningMaze_API.Controllers
                              .Where(q => q.codEvento == id)
                              .Select(q => q.codQuestao)
                              .ToList();
-            if (questoes == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas!" });
+            if (questoes == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas" });
 
             List<Object> retorno = new List<Object>();
 
             foreach (int qe in questoes)
             {
                 Questao q = db.Questaos.Find(qe);
-                if (q == null) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
+                if (q == null) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada" });
                 Assunto a = db.Assuntos.Find(q.codAssunto);
-                if (a == null) return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado!" });
+                if (a == null) return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado" });
                 retorno.Add(new
                         {
                             Questao = q,
@@ -248,7 +248,7 @@ namespace TheLearningMaze_API.Controllers
                                     .Where(q => q.codEvento == id && q.codStatus == "E")
                                     .Select(q => q.codQuestao)
                                     .FirstOrDefault();
-            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento" });
 
             Questao questao = db.Questaos.FirstOrDefault(q => q.codQuestao == codQuestaoAtual);
 
@@ -263,14 +263,14 @@ namespace TheLearningMaze_API.Controllers
                                     .Where(q => q.codEvento == id && q.codStatus == "E")
                                     .Select(q => q.codQuestao)
                                     .FirstOrDefault();
-            if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento!" });
+            if (codQuestaoAtual == null && codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Não há questão em execução neste evento" });
 
             string tipoQuestao = db.Questaos
                         .Where(q => q.codQuestao == codQuestaoAtual)
                         .Select(q => q.codTipoQuestao)
                         .FirstOrDefault();
 
-            if (tipoQuestao != "A") return Content(HttpStatusCode.BadRequest, new { message = "Questão não é de alternativas!" });
+            if (tipoQuestao != "A") return Content(HttpStatusCode.BadRequest, new { message = "Questão não é de alternativas" });
 
             List<Alternativa> alt = db.Alternativas
                                 .Where(e => e.codQuestao == codQuestaoAtual)
@@ -328,10 +328,13 @@ namespace TheLearningMaze_API.Controllers
             var evento = db.Eventos.FirstOrDefault(e => e.codEvento == eventoID);
 
             if (evento == null)
-                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado." });
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+
+            if (evento.codTipoEvento != 4)
+                return Content(HttpStatusCode.BadRequest, new { message = "Este evento não faz parte do jogo Learning Maze" });
 
             if (evento.codStatus != "C")
-                return Content(HttpStatusCode.BadRequest, new { message = "Evento já em execução, aberto ou finalizado." });
+                return Content(HttpStatusCode.BadRequest, new { message = "Evento já em execução, aberto ou finalizado" });
 
             var token = Request.Headers.Authorization.ToString();
             // Faz decode do Token para extrair codProfessor e token original
@@ -340,17 +343,17 @@ namespace TheLearningMaze_API.Controllers
 
             if (tokenProfessor == null)
             {
-                return Content(HttpStatusCode.BadRequest, new { message = "Professor não encontrado!" });
+                return Content(HttpStatusCode.BadRequest, new { message = "Professor não encontrado." });
             }
 
-            //var eventosAbertosOuExecucao = db.Eventos
-            //    .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "E" || e.codStatus == "A") && e.codTipoEvento == 4)
-            //    .ToList();
+            var eventosAbertosOuExecucao = db.Eventos
+                .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "E" || e.codStatus == "A") && e.codTipoEvento == 4)
+                .ToList();
 
-            //if (eventosAbertosOuExecucao.Count > 0)
-            //{
-            //    return Content(HttpStatusCode.BadRequest, new { message = "Professor não encontrado!" });
-            //}
+            if (eventosAbertosOuExecucao.Count > 0)
+            {
+                return Content(HttpStatusCode.BadRequest, new { message = "Já existe algum evento aberto ou em execução asssociado a este professor" });
+            }
 
             evento.codStatus = "A";
             evento.data = DateTime.Now;
@@ -385,8 +388,8 @@ namespace TheLearningMaze_API.Controllers
         public IHttpActionResult RegistrarPerguntas(Evento ev, Questao[] q)
         {
             int? e = db.Eventos.Where(w => w.codEvento == ev.codEvento).Select(w => w.codEvento).FirstOrDefault();
-            if (e == null && e == 0) return Content(HttpStatusCode.BadRequest, new { message = "Não foi enviado evento válido!" });
-            if (q == null) return Content(HttpStatusCode.BadRequest, new { message = "Não foram enviadas questões!" });
+            if (e == null && e == 0) return Content(HttpStatusCode.BadRequest, new { message = "Não foi enviado evento válido" });
+            if (q == null) return Content(HttpStatusCode.BadRequest, new { message = "Não foram enviadas questões" });
 
             foreach (Questao questao in q)
             {
@@ -413,14 +416,19 @@ namespace TheLearningMaze_API.Controllers
         {
             using (var dbContext = new ApplicationDbContext())
             {
+                var existeQuestaoEmExecucao = dbContext.QuestaoEventos.Any(q => q.codStatus.Equals("E"));
+
+                if (existeQuestaoEmExecucao)
+                    return Content(HttpStatusCode.NotFound, new { message = "Já existe alguma questão sendo respondida" });
+
                 var questao = dbContext.QuestaoEventos
                     .FirstOrDefault(q => q.codQuestao == requestQuestao.codQuestao && q.codEvento == requestQuestao.codEvento);
 
                 if (questao == null)
-                    return Content(HttpStatusCode.NotFound, new { message = "Questão inválida!" });
+                    return Content(HttpStatusCode.NotFound, new { message = "Questão inválida" });
 
                 if (questao.codStatus != "C")
-                    return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada!" });
+                    return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada" });
 
                 const string sql =
 @"UPDATE QuestaoEvento SET codStatus = 'E' WHERE codEvento = @codEvento AND codQuestao = @codQuestao";
@@ -451,7 +459,7 @@ namespace TheLearningMaze_API.Controllers
                                     .Where(q => q.codEvento == r.codEvento && q.codStatus == "E")
                                     .Select(q => q.codQuestao)
                                     .FirstOrDefault();
-            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada!" });
+            if (codQuestaoAtual == null || codQuestaoAtual == 0) return Content(HttpStatusCode.NotFound, new { message = "Questão não encontrada" });
 
             List<Alternativa> alts = db.Alternativas
                                         .Where(a => a.codQuestao == codQuestaoAtual)
@@ -488,7 +496,7 @@ namespace TheLearningMaze_API.Controllers
                     break;
 
                 default:
-                    return Content(HttpStatusCode.BadRequest, new { message = "Tipo da questão inválido!" });
+                    return Content(HttpStatusCode.BadRequest, new { message = "Tipo da questão inválido" });
             }
 
             QuestaoGrupo qg = db.QuestaoGrupos
