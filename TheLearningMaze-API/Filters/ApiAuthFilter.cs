@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
-using System.Web;
-using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using System.Web.Mvc;
 using TheLearningMaze_API.Custom;
 using TheLearningMaze_API.Models;
 
@@ -32,23 +28,22 @@ namespace TheLearningMaze_API.Filters
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
-            HttpStatusCodeCustom status = AuthorizeRequest(actionContext);
+            var status = AuthorizeRequest(actionContext);
 
-            if (status == HttpStatusCodeCustom.OK)
-            {
+            if ((HttpStatusCodeCustom)status.StatusCode == HttpStatusCodeCustom.OK)
                 return;
-            }
-            
+
             HandleUnauthorizedRequest(actionContext, status);
         }
 
-        protected void HandleUnauthorizedRequest(HttpActionContext actionContext, HttpStatusCodeCustom status)
+        protected void HandleUnauthorizedRequest(HttpActionContext actionContext, HttpStatusCodeResult status)
         {
-            actionContext.Response = new HttpResponseMessage((HttpStatusCode)status);
-            return;
+            //actionContext.Response = new HttpResponseMessage((HttpStatusCode)status);
+            //actionContext.Request.CreateResponse((HttpStatusCode)status.StatusCode, status.StatusDescription);
+            actionContext.Response = actionContext.Request.CreateResponse((HttpStatusCode)status.StatusCode, status.StatusDescription);
         }
 
-        private HttpStatusCodeCustom AuthorizeRequest(HttpActionContext actionContext)
+        private HttpStatusCodeResult AuthorizeRequest(HttpActionContext actionContext)
         {
             // Verifica se o cabeçalho contém "Authorization"
             if (actionContext.Request.Headers.Authorization != null)
@@ -66,13 +61,14 @@ namespace TheLearningMaze_API.Filters
                         db.Entry(tokenEntity).State = EntityState.Modified;
                         db.SaveChanges();
 
-                        return HttpStatusCodeCustom.OK; //Se token existe e é válido
+                        return new HttpStatusCodeResult(HttpStatusCode.OK); //Se token existe e é válido
                     }
-                    return HttpStatusCodeCustom.TokenExpired; //Se token existe mas expirou
+                    //return HttpStatusCodeCustom.TokenExpired; //Se token existe mas expirou
+                    return new HttpStatusCodeResult(HttpStatusCode.Unauthorized, "Token expirado");
                 }
             }
 
-            return HttpStatusCodeCustom.Unauthorized; //Se token não existe
+            return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe
         }
     }
 }

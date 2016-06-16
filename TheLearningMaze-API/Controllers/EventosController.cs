@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Configuration;
 using System.Web.Http;
 using System.Web.Http.Description;
 using TheLearningMaze_API.Filters;
 using TheLearningMaze_API.Models;
-using WebGrease.Activities;
 using Dapper;
 
 namespace TheLearningMaze_API.Controllers
@@ -103,7 +98,7 @@ namespace TheLearningMaze_API.Controllers
             var evento = db.Eventos
                 .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "E") && e.codTipoEvento == 4)
                 .OrderByDescending(d => d.data)
-                .FirstOrDefault() 
+                .FirstOrDefault()
                 ?? db.Eventos
                     .Where(e => e.codProfessor == tokenProf.codProfessor && (e.codStatus == "A") && e.codTipoEvento == 4)
                     .OrderByDescending(d => d.data)
@@ -119,14 +114,15 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/Grupos")]
         public IHttpActionResult GetGruposEvento(int id)
         {
-            if (!this.ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
+            if (!ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
 
             var evento = db.Eventos.Find(id);
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
-            IEnumerable<Grupo> grupos = db.Grupos
-                .Where(g => g.codEvento == evento.codEvento);
-            if (grupos == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
+            IEnumerable<Grupo> grupos = db.Grupos.Where(g => g.codEvento == evento.codEvento);
+
+            if (grupos == null) 
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
 
             return Ok(grupos);
 
@@ -265,7 +261,7 @@ namespace TheLearningMaze_API.Controllers
                              .Where(q => q.codEvento == id && q.codStatus != "E")
                              .Select(q => q.codQuestao)
                              .ToList();
-            
+
             if (questoes.Count <= 0)
             {
                 questoes = this.ReciclaQuestoes(id);
@@ -328,10 +324,8 @@ namespace TheLearningMaze_API.Controllers
 
             var questaoAtual = db.Questaos.FirstOrDefault(q => q.codQuestao == questaoSendoRespondida.codQuestao);
 
-            string tipoQuestao = db.Questaos
-                        .Where(q => q.codQuestao == codQuestaoAtual)
-                        .Select(q => q.codTipoQuestao)
-                        .FirstOrDefault();
+            if (questaoAtual == null)
+                return Content(HttpStatusCode.BadRequest, new { message = "Questão atual não encontrada na lista de questões" });
 
             if (questaoAtual.codTipoQuestao != "A")
                 return Content(HttpStatusCode.BadRequest, new { message = "Questão não é de alternativas" });
@@ -500,7 +494,7 @@ namespace TheLearningMaze_API.Controllers
             // Verificar integridade do evento pra não iniciar malucão
             var quantGrupos = db.Grupos.Count(g => g.codEvento == evento.codEvento);
             if (quantGrupos < 4)
-                return Content(HttpStatusCode.BadRequest, new {message = "Evento não tem grupos suficientes!"});
+                return Content(HttpStatusCode.BadRequest, new { message = "Evento não tem grupos suficientes!" });
 
             var quantAssuntosGrupo =
                 db.Grupos.Where(g => g.codEvento == evento.codEvento).Select(g => g.codAssunto).Distinct();
@@ -508,9 +502,9 @@ namespace TheLearningMaze_API.Controllers
                 db.EventoAssuntos.Where(g => g.codEvento == evento.codEvento).Select(g => g.codAssunto).Distinct();
             if (quantAssuntos.Count() < 4) // Se o evento tem menos de 4 assuntos
                 return Content(HttpStatusCode.BadRequest,
-                    new {message = "Evento não tem quantidade de assuntos suficientes!"});
+                    new { message = "Evento não tem quantidade de assuntos suficientes!" });
             if (quantAssuntos.Count() < quantAssuntosGrupo.Count()) // Se tem mais assuntos escolhidos nos grupos do que disponíveis no evento
-                return Content(HttpStatusCode.BadRequest, new {message = "Quantidade de assuntos inconsistente!"});
+                return Content(HttpStatusCode.BadRequest, new { message = "Quantidade de assuntos inconsistente!" });
 
             evento.codStatus = "E";
             evento.data = DateTime.Now;
@@ -807,14 +801,14 @@ namespace TheLearningMaze_API.Controllers
                 //where qg.correta = 0
                 //    and qe.codStatus = 'F'
                 var questaoEventos = (from qe in _db.QuestaoEventos
-                                    join qg in _db.QuestaoGrupos on qe.codQuestao equals qg.codQuestao
-                                    where qg.correta == false
-                                          && qe.codStatus.Equals("F")
-                                          && qe.codEvento == id
-                                    select new
-                                    {
-                                        qe.codQuestao
-                                    }).ToArray();
+                                      join qg in _db.QuestaoGrupos on qe.codQuestao equals qg.codQuestao
+                                      where qg.correta == false
+                                            && qe.codStatus.Equals("F")
+                                            && qe.codEvento == id
+                                      select new
+                                      {
+                                          qe.codQuestao
+                                      }).ToArray();
 
                 if (questaoEventos.Length <= 0)
                     return null;
@@ -833,7 +827,7 @@ namespace TheLearningMaze_API.Controllers
 
                 return retorno;
             }
-            
+
         }
     }
 }
