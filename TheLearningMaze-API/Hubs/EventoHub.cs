@@ -23,7 +23,7 @@ namespace TheLearningMaze_API.Hubs
             if (evento == null)
                 return;
 
-            Groups.Add(Context.ConnectionId, evento.identificador);
+            Groups.Add(Context.ConnectionId, evento.codEvento.ToString());
 
             // Verificar se codParticipante é líder e guardar na tabela
             if (codParticipante != 0 && codParticipante == grupo.codLider)
@@ -38,22 +38,22 @@ namespace TheLearningMaze_API.Hubs
                 _db.SaveChanges();
             }
 
-            Clients.Group(evento.identificador).joinEvento(grupo);
+            Clients.Group(evento.codEvento.ToString()).joinEvento(grupo);
         }
 
-        public void JoinEventoProfessor(string identificador)
+        public void JoinEventoProfessor(string codEvento)
         {
-            Groups.Add(Context.ConnectionId, identificador);
+            Groups.Add(Context.ConnectionId, codEvento);
         }
 
-        public void LancarPergunta(string identificador, int tempo)
+        public void LancarPergunta(string codEvento, int tempo)
         {
-            Clients.OthersInGroup(identificador).lancarPergunta(tempo);
+            Clients.OthersInGroup(codEvento).lancarPergunta(tempo);
         }
 
-        public void ResponderPergunta(string identificador)
+        public void ResponderPergunta(string codEvento)
         {
-            Clients.OthersInGroup(identificador).responderPergunta();
+            Clients.OthersInGroup(codEvento).responderPergunta();
         }
     }
 }
