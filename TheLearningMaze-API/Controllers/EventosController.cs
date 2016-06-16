@@ -121,7 +121,24 @@ namespace TheLearningMaze_API.Controllers
 
             IEnumerable<Grupo> grupos = db.Grupos.Where(g => g.codEvento == evento.codEvento);
 
-            if (grupos == null) 
+            if (!grupos.Any())
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
+
+            return Ok(grupos);
+
+        }
+
+        // GET: api/Eventos/GrupoId/25/Grupos
+        [ResponseType(typeof(Grupo))]
+        [Route("api/Eventos/GrupoId/{id}/Grupos")]
+        public IHttpActionResult GetGruposEventoPorGrupoId(int id)
+        {
+            var eventoId = db.Grupos.Find(id).codEvento;
+            if (eventoId == 0) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+
+            IEnumerable<Grupo> grupos = db.Grupos.Where(g => g.codEvento == eventoId);
+
+            if (!grupos.Any())
                 return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
 
             return Ok(grupos);
