@@ -12,11 +12,11 @@ using Dapper;
 
 namespace TheLearningMaze_API.Controllers
 {
-    [ProfAuthFilter]
     public class EventosController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
+        [ProfAuthFilter]
         // GET: api/Eventos/5/10
         [Route("api/Eventos/Paged/{page}/{perPage}")]
         public IHttpActionResult GetEventosPaginated(int page = 0, int perPage = 10)
@@ -49,6 +49,7 @@ namespace TheLearningMaze_API.Controllers
             });
         }
 
+        [ProfAuthFilter]
         // GET: api/Eventos/5
         [ResponseType(typeof(Evento))]
         public IHttpActionResult GetEvento(int id)
@@ -83,6 +84,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(evento);
         }
 
+        [ProfAuthFilter]
         // GET: api/Eventos/Ativo
         [ResponseType(typeof(Evento))]
         [Route("api/Eventos/Ativo")]
@@ -128,7 +130,7 @@ namespace TheLearningMaze_API.Controllers
 
         }
 
-        // GET: api/Eventos/GrupoId/25/Grupos
+        // GET: api/Eventos/GrupoId/25/Grupo
         [ResponseType(typeof(Grupo))]
         [Route("api/Eventos/GrupoId/{id}/Grupos")]
         public IHttpActionResult GetGruposEventoPorGrupoId(int id)
@@ -268,6 +270,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        [ProfAuthFilter]
         // GET: api/Eventos/5/Questoes
         [Route("api/Eventos/{id}/Questoes")]
         public IHttpActionResult GetQuestoesEvento(int id)
@@ -305,6 +308,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        [ProfAuthFilter]
         // GET: api/Eventos/5/QuestaoAtual
         [Route("api/Eventos/{id}/QuestaoAtual")]
         public IHttpActionResult GetQuestaoAtual(int eventoID)
@@ -326,7 +330,7 @@ namespace TheLearningMaze_API.Controllers
 
             return Ok(questaoAtual);
         }
-
+        
         // GET: api/Eventos/5/QuestaoAtual/Alternativas
         [Route("api/Eventos/{id}/QuestaoAtual/Alternativas")]
         public IHttpActionResult GetQuestaoAtualAlternativas(int id)
@@ -496,6 +500,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(informacaoAtual);
         }
 
+        [ProfAuthFilter]
         // POST: /api/Eventos/Iniciar
         [HttpPost]
         [Route("api/Eventos/Iniciar")]
@@ -556,6 +561,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
+        [ProfAuthFilter]
         // POST: /api/Eventos/Abrir
         [HttpPost]
         [Route("api/Eventos/Abrir")]
@@ -605,6 +611,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok();
         }
 
+        [ProfAuthFilter]
         // POST: /api/Eventos/Encerrar
         [HttpPost]
         [Route("api/Eventos/Encerrar")]
@@ -632,6 +639,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(evento);
         }
 
+        [ProfAuthFilter]
         // POST: api/Eventos/RegistrarPerguntas
         [HttpPost]
         [Route("api/Eventos/RegistrarPerguntas")]
@@ -661,6 +669,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok();
         }
 
+        [ProfAuthFilter]
         // POST: /api/Eventos/LancarPergunta
         [HttpPost]
         [Route("api/Eventos/LancarPergunta")]
