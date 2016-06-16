@@ -116,8 +116,6 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/Grupos")]
         public IHttpActionResult GetGruposEvento(int id)
         {
-            if (!ValidaProfessor(id)) return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
-
             var evento = _db.Eventos.Find(id);
             if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
@@ -129,25 +127,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(grupos);
 
         }
-
-        // GET: api/Eventos/GrupoId/25/Grupo
-        [ResponseType(typeof(Grupo))]
-        [Route("api/Eventos/GrupoId/{id}/Grupos")]
-        public IHttpActionResult GetGruposEventoPorGrupoId(int id)
-        {
-            var eventoId = _db.Grupos.Find(id).codEvento;
-
-            if (eventoId == 0)
-                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
-
-            IEnumerable<Grupo> grupos = _db.Grupos.Where(g => g.codEvento == eventoId);
-
-            if (!grupos.Any())
-                return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
-
-            return Ok(grupos);
-        }
-
+        
         // GET: api/Eventos/5/GruposCompleto
         [Route("api/Eventos/{id}/GruposCompleto")]
         public IHttpActionResult GetGruposFull(int id)
@@ -375,9 +355,6 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/InfoGrupoAtual")]
         public IHttpActionResult GetInfoGrupoAtual(int id)
         {
-            if (!ValidaProfessor(id))
-                return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
-
             var informacaoGrupo = (from g in _db.Grupos
                                    join meo in _db.MasterEventosOrdem on g.codGrupo equals meo.codGrupo
                                    join a in _db.Assuntos on g.codAssunto equals a.codAssunto
