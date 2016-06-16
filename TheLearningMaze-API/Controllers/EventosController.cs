@@ -65,9 +65,9 @@ namespace TheLearningMaze_API.Controllers
             return Ok(evento);
         }
 
-        // GET: api/Eventos/Ativo
+        // GET: api/Eventos/25/1
         [ResponseType(typeof(Evento))]
-        [Route("api/Evento/{grupoID}/{participanteID}")]
+        [Route("api/Eventos/{grupoID}/{participanteID}")]
         public IHttpActionResult GetEventoPorGrupo(int grupoID, int participanteID)
         {
             var grupo = db.Grupos.FirstOrDefault(g => g.codGrupo == grupoID);
