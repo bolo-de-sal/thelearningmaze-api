@@ -439,6 +439,7 @@ namespace TheLearningMaze_API.Controllers
             {
                 informacaoGrupo.codGrupo,
                 informacaoGrupo.nmGrupo,
+                informacaoGrupo.codLider,
                 assunto = new
                 {
                     codAssunto = codAssuntoAtual,
