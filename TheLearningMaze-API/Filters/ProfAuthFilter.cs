@@ -15,15 +15,6 @@ namespace TheLearningMaze_API.Filters
 {
     public class ProfAuthFilter : AuthorizationFilterAttribute
     {
-        //private bool v = true;
-        private ApplicationDbContext db = new ApplicationDbContext();
-
-        public ProfAuthFilter()
-        {
-            /*this.v = v*/
-            ;
-        }
-
         protected bool OnAuthorizeUser(string token, HttpActionContext actionContext)
         {
             return true;

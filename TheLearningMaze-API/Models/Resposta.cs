@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace TheLearningMaze_API.Models
+﻿namespace TheLearningMaze_API.Models
 {
     public class Resposta
     {
