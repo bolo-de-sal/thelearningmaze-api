@@ -13,7 +13,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    //[ApiAuthFilter(true)]
+    [ApiAuthFilter(true)]
     public class ParticipantesController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -84,7 +84,6 @@ namespace TheLearningMaze_API.Controllers
             return Ok();
         }
 
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -92,11 +91,6 @@ namespace TheLearningMaze_API.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool ParticipanteExists(int id)
-        {
-            return db.Participantes.Count(e => e.codParticipante == id) > 0;
         }
     }
 }

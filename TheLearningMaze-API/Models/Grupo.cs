@@ -22,7 +22,5 @@ namespace TheLearningMaze_API.Models
         public Int32 codLider { get; set; }
 
         public bool? finalizado { get; set; }
-
-        //public virtual ICollection<Participante> participantes { get; set; }
     }
 }

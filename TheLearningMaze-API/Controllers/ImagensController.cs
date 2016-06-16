@@ -14,7 +14,7 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    //[ProfAuthFilter]
+    [ApiAuthFilter(true)]
     public class ImagensController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -51,11 +51,6 @@ namespace TheLearningMaze_API.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool ImagemExists(int id)
-        {
-            return db.Imagems.Count(e => e.codImagem == id) > 0;
         }
     }
 }
