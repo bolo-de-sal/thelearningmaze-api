@@ -132,9 +132,6 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/GruposCompleto")]
         public IHttpActionResult GetGruposFull(int id)
         {
-            if (!ValidaProfessor(id))
-                return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento" });
-
             var evento = _db.Eventos.Find(id);
 
             if (evento == null)
