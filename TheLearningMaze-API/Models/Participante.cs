@@ -24,7 +24,5 @@ namespace TheLearningMaze_API.Models
         public Byte[] senha { get; set; }
 
         public Boolean ativo { get; set; }
-
-        //public virtual ICollection<Grupo> grupos { get; set; }
     }
 }

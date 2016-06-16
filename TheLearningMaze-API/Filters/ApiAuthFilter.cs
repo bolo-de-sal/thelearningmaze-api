@@ -14,7 +14,6 @@ namespace TheLearningMaze_API.Filters
     public class ApiAuthFilter : AuthorizationFilterAttribute
     {
         private bool v = true;
-        private ApplicationDbContext db = new ApplicationDbContext();
 
         public ApiAuthFilter(bool v)
         {
@@ -38,37 +37,37 @@ namespace TheLearningMaze_API.Filters
 
         protected void HandleUnauthorizedRequest(HttpActionContext actionContext, HttpStatusCodeResult status)
         {
-            //actionContext.Response = new HttpResponseMessage((HttpStatusCode)status);
-            //actionContext.Request.CreateResponse((HttpStatusCode)status.StatusCode, status.StatusDescription);
             actionContext.Response = actionContext.Request.CreateResponse((HttpStatusCode)status.StatusCode, status.StatusDescription);
         }
 
         private HttpStatusCodeResult AuthorizeRequest(HttpActionContext actionContext)
         {
-            // Verifica se o cabeçalho contém "Authorization"
-            if (actionContext.Request.Headers.Authorization != null)
+            using (var db = new ApplicationDbContext())
             {
-                string token = actionContext.Request.Headers.Authorization.ToString().Substring(6); //Retira "Token "
-                Token tokenEntity = db.Tokens
-                                        .Where(t => t.token == token)
-                                        .FirstOrDefault();
-                if (tokenEntity != null)
+                // Verifica se o cabeçalho contém "Authorization"
+                if (actionContext.Request.Headers.Authorization != null)
                 {
-                    if (tokenEntity.expiraEm >= DateTime.Now)
+                    string token = actionContext.Request.Headers.Authorization.ToString().Substring(6); //Retira "Token "
+                    Token tokenEntity = db.Tokens
+                                            .FirstOrDefault(t => t.token == token);
+                    if (tokenEntity != null)
                     {
-                        // Adiciona 15 minutos ao tempo de expiração
-                        tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
-                        db.Entry(tokenEntity).State = EntityState.Modified;
-                        db.SaveChanges();
+                        if (tokenEntity.expiraEm >= DateTime.Now)
+                        {
+                            // Adiciona 15 minutos ao tempo de expiração
+                            tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
+                            db.Entry(tokenEntity).State = EntityState.Modified;
+                            db.SaveChanges();
 
-                        return new HttpStatusCodeResult(HttpStatusCode.OK); //Se token existe e é válido
+                            return new HttpStatusCodeResult(HttpStatusCode.OK); //Se token existe e é válido
+                        }
+                        //return HttpStatusCodeCustom.TokenExpired; //Se token existe mas expirou
+                        return new HttpStatusCodeResult(HttpStatusCode.Unauthorized, "Token expirado");
                     }
-                    //return HttpStatusCodeCustom.TokenExpired; //Se token existe mas expirou
-                    return new HttpStatusCodeResult(HttpStatusCode.Unauthorized, "Token expirado");
                 }
-            }
 
-            return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe
+                return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe    
+            }
         }
     }
 }
