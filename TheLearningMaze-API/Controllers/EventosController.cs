@@ -358,12 +358,13 @@ namespace TheLearningMaze_API.Controllers
                                    join qg in _db.QuestaoGrupos on g.codGrupo equals qg.codGrupo into ia
                                    from ia1 in ia.DefaultIfEmpty()
                                    where g.codEvento == id
-                                   group ia1 by new { g.codGrupo, g.nmGrupo, a.codAssunto, a.descricao, meo.ordem } into infoAtual
+                                   group ia1 by new { g.codGrupo, g.nmGrupo, g.codLider, a.codAssunto, a.descricao, meo.ordem } into infoAtual
                                    orderby new { quantidade = infoAtual.Count(c => c != null), infoAtual.Key.ordem }
                                    select new
                                    {
                                        infoAtual.Key.codGrupo,
                                        infoAtual.Key.nmGrupo,
+                                       infoAtual.Key.codLider,
                                        assunto = new
                                        {
                                            infoAtual.Key.codAssunto,
