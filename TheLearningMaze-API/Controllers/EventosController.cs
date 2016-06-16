@@ -360,9 +360,6 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/{id}/InfoGrupoAtual")]
         public IHttpActionResult GetInfoGrupoAtual(int id)
         {
-            if (!this.ValidaProfessor(id))
-                return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
-
             var informacaoGrupo = (from g in db.Grupos
                                    join meo in db.MasterEventosOrdem on g.codGrupo equals meo.codGrupo
                                    join a in db.Assuntos on g.codAssunto equals a.codAssunto
