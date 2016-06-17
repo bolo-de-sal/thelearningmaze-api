@@ -14,7 +14,6 @@ using TheLearningMaze_API.Models;
 
 namespace TheLearningMaze_API.Controllers
 {
-    [ApiAuthFilter(true)]
     public class ImagensController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
