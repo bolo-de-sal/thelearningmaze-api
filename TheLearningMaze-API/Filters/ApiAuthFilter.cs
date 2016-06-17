@@ -57,7 +57,7 @@ namespace TheLearningMaze_API.Filters
                     return new HttpStatusCodeResult(HttpStatusCode.RequestTimeout, "Token expirado");
 
                 // Adiciona 15 minutos ao tempo de expiração
-                tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
+                tokenEntity.expiraEm = DateTime.Now.AddMinutes(60);
                 db.Entry(tokenEntity).State = EntityState.Modified;
                 db.SaveChanges();
 
