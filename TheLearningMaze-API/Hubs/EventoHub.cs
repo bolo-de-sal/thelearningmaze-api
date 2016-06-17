@@ -52,9 +52,12 @@ namespace TheLearningMaze_API.Hubs
 
             var alternativas = _db.Alternativas.Where(a => a.codQuestao == codQuestao).ToList();
 
+            var assunto = _db.Assuntos.FirstOrDefault(a => a.codAssunto == questao.codAssunto);
+
             var questaoCompleta = new
             {
                 Questao = questao,
+                Assunto = assunto,
                 Alternativas = alternativas
             };
 
