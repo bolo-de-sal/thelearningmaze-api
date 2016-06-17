@@ -481,8 +481,7 @@ namespace TheLearningMaze_API.Controllers
                                          select new
                                          {
                                              alternativa.codAlternativa,
-                                             alternativa.textoAlternativa,
-                                             alternativa.correta
+                                             alternativa.textoAlternativa
                                          };
 
             var informacaoAtual = new
