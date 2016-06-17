@@ -106,7 +106,7 @@ namespace TheLearningMaze_API.Controllers
                     .OrderByDescending(d => d.data)
                     .FirstOrDefault();
 
-            if (evento == null) 
+            if (evento == null)
                 return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             return Ok(evento);
@@ -739,36 +739,40 @@ namespace TheLearningMaze_API.Controllers
             if (alternativas.Count <= 0)
                 return Content(HttpStatusCode.NotFound, new { message = "Não foram encontradas alternativas para a resposta a ser respondida" });
 
-            var acertou = false;
-
-            switch (resposta.tipoQuestao)
-            {
-                case "A":
-                    if (alternativas.Any(alternativa => alternativa.correta && (alternativa.codAlternativa == resposta.alternativa)))
-                        acertou = true;
-
-                    break;
-
-                case "T":
-                    if (alternativas.Any(alternativa => alternativa.textoAlternativa.Trim() == resposta.texto.Trim()))
-                        acertou = true;
-
-                    break;
-
-                case "V":
-                    if (alternativas.First().correta == resposta.verdadeiro)
-                        acertou = true;
-
-                    break;
-
-                default:
-                    return Content(HttpStatusCode.BadRequest, new { message = "Tipo da questão inválido" });
-            }
-
             var questaoGrupo = _db.QuestaoGrupos.FirstOrDefault(q => q.codQuestao == questaoAtual.codQuestao);
 
             if (questaoGrupo == null)
                 return Content(HttpStatusCode.NotFound, new { message = "A questão atual não está associada ao grupo da vez" });
+
+            var acertou = false;
+
+            if (!resposta.tempoExpirou)
+            {
+                switch (resposta.tipoQuestao)
+                {
+                    case "A":
+                        if (
+                            alternativas.Any(alternativa => alternativa.correta && (alternativa.codAlternativa == resposta.alternativa)))
+                            acertou = true;
+
+                        break;
+
+                    case "T":
+                        if (alternativas.Any(alternativa => alternativa.textoAlternativa.Trim() == resposta.texto.Trim()))
+                            acertou = true;
+
+                        break;
+
+                    case "V":
+                        if (alternativas.First().correta == resposta.verdadeiro)
+                            acertou = true;
+
+                        break;
+
+                    default:
+                        return Content(HttpStatusCode.BadRequest, new { message = "Tipo da questão inválido" });
+                }
+            }
 
             questaoGrupo.tempo = DateTime.Now;
             questaoGrupo.correta = acertou;

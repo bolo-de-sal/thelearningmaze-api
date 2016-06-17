@@ -11,5 +11,7 @@
         public bool verdadeiro { get; set; }
 
         public string texto { get; set; }
+
+        public bool tempoExpirou { get; set; }
     }
 }
