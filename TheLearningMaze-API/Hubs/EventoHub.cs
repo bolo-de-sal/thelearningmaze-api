@@ -46,9 +46,19 @@ namespace TheLearningMaze_API.Hubs
             Groups.Add(Context.ConnectionId, codEvento);
         }
 
-        public void LancarPergunta(string codEvento)
+        public void LancarPergunta(string codEvento, int codQuestao)
         {
-            Clients.OthersInGroup(codEvento).lancarPergunta();
+            var questao = _db.Questaos.FirstOrDefault(q => q.codQuestao == codQuestao);
+
+            var alternativas = _db.Alternativas.Where(a => a.codQuestao == codQuestao);
+
+            var questaoCompleta = new
+            {
+                Questao = questao,
+                Alternativas = alternativas
+            };
+
+            Clients.OthersInGroup(codEvento).lancarPergunta(questaoCompleta);
         }
 
         public void ResponderPergunta(string codEvento, int codGrupo, bool acertou)
