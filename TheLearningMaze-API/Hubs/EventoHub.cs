@@ -55,12 +55,14 @@ namespace TheLearningMaze_API.Hubs
         {
             var campeao = false;
             var codGrupoCampeao = 0;
+            var acertos = 0;
 
             if (acertou)
             {
                 var questoesAcertadas = _db.QuestaoGrupos.Where(g => g.codGrupo == codGrupo && g.correta).ToList();
+                acertos = questoesAcertadas.Count;
 
-                if (questoesAcertadas.Count > 8)
+                if (acertos > 8)
                 {
                     campeao = true;
 
@@ -70,7 +72,7 @@ namespace TheLearningMaze_API.Hubs
                 }
             }
 
-            Clients.OthersInGroup(codEvento).responderPergunta(acertou, campeao, codGrupoCampeao);
+            Clients.OthersInGroup(codEvento).responderPergunta(acertou, campeao, codGrupoCampeao, acertos);
         }
 
         public void AtivarTimer(string codEvento)
