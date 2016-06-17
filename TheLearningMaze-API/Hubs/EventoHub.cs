@@ -84,5 +84,10 @@ namespace TheLearningMaze_API.Hubs
         {
             Clients.OthersInGroup(codEvento).iniciarJogo();
         }
+
+        public void EncerrarJogo(string codEvento)
+        {
+            Clients.OthersInGroup(codEvento).encerrarJogo();
+        }
     }
 }
