@@ -512,11 +512,10 @@ namespace TheLearningMaze_API.Controllers
             if (evento.codStatus == "E" && evento.codStatus == "F")
                 return Content(HttpStatusCode.BadRequest, new { message = "Evento já em execução ou finalizado" });
 
-            // Verificar integridade do evento pra não iniciar malucão
-            var quantGrupos = _db.Grupos.Count(g => g.codEvento == evento.codEvento);
+            var grupos = _db.Grupos.Where(g => g.codEvento == evento.codEvento).OrderBy(x => Guid.NewGuid()).ToList();
 
-            if (quantGrupos < 4)
-                return Content(HttpStatusCode.BadRequest, new { message = "Evento não tem grupos suficientes!" });
+            if (grupos.Count < 2)
+                return Content(HttpStatusCode.BadRequest, new { message = "Evento não tem grupos suficientes para iniciar" });
 
             var quantAssuntosGrupo = _db.Grupos.Where(g => g.codEvento == evento.codEvento).Select(g => g.codAssunto).Distinct();
 
@@ -533,20 +532,18 @@ namespace TheLearningMaze_API.Controllers
             _db.Entry(evento).State = EntityState.Modified;
 
             // Sorteia ordem
-            IEnumerable<Grupo> grupos = _db.Grupos.Where(g => g.codEvento == evento.codEvento).OrderBy(x => Guid.NewGuid());
-
-            if (grupos.Count() < 2)
-                return Content(HttpStatusCode.BadRequest, new { message = "Evento não tem grupos suficientes para iniciar" });
-
             var retorno = new List<MasterEventosOrdem>();
             byte i = 0;
 
             foreach (var grupo in grupos)
             {
-                var pg = _db.ParticipanteGrupos.FirstOrDefault(p => p.codGrupo == grupo.codGrupo);
+                var pg = _db.ParticipanteGrupos.Where(p => p.codGrupo == grupo.codGrupo).ToList();
 
-                if (pg == null)
+                if (pg.Count <= 0)
                     return Content(HttpStatusCode.BadRequest, new { message = "Grupo não contém participantes" });
+
+                if (pg.All(p => p.codParticipante != grupo.codLider))
+                    return Content(HttpStatusCode.BadRequest, new { message = string.Format("O grupo {0} não contém um líder", grupo.nmGrupo) });
 
                 var grupoJaSorteado = _db.MasterEventosOrdem.Any(g => g.codGrupo == grupo.codGrupo);
 
