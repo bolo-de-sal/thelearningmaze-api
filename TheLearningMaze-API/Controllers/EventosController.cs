@@ -29,7 +29,7 @@ namespace TheLearningMaze_API.Controllers
             var eventos = _db.Eventos
                 .Where(e => e.codProfessor == tokenProf.codProfessor
                         && e.codTipoEvento == 4
-                        && e.codStatus != "E")
+                        && e.codStatus != "E" && e.codStatus != "A")
                 .OrderByDescending(d => d.data)
                 .ToList();
 
@@ -106,7 +106,8 @@ namespace TheLearningMaze_API.Controllers
                     .OrderByDescending(d => d.data)
                     .FirstOrDefault();
 
-            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+            if (evento == null) 
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             return Ok(evento);
         }
