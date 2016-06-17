@@ -1,8 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -35,7 +32,6 @@ namespace TheLearningMaze_API.Filters
         protected void HandleUnauthorizedRequest(HttpActionContext actionContext, HttpStatusCodeCustom status)
         {
             actionContext.Response = new HttpResponseMessage((HttpStatusCode)status);
-            return;
         }
 
         private HttpStatusCodeCustom AuthorizeRequest(HttpActionContext actionContext)

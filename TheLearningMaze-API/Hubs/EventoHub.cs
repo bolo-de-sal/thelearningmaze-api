@@ -46,14 +46,24 @@ namespace TheLearningMaze_API.Hubs
             Groups.Add(Context.ConnectionId, codEvento);
         }
 
-        public void LancarPergunta(string codEvento, int tempo)
+        public void LancarPergunta(string codEvento)
         {
-            Clients.OthersInGroup(codEvento).lancarPergunta(tempo);
+            Clients.OthersInGroup(codEvento).lancarPergunta();
         }
 
-        public void ResponderPergunta(string codEvento)
+        public void ResponderPergunta(string codEvento, int codGrupo, bool acertou)
         {
-            Clients.OthersInGroup(codEvento).responderPergunta();
+            var campeao = false;
+
+            if (acertou)
+            {
+                var questoesAcertadas = _db.QuestaoGrupos.Where(g => g.codGrupo == codGrupo && g.correta).ToList();
+
+                if (questoesAcertadas.Count > 8)
+                    campeao = true;
+            }
+
+            Clients.OthersInGroup(codEvento).responderPergunta(acertou, campeao);
         }
     }
 }

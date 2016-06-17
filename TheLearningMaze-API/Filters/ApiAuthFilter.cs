@@ -13,11 +13,11 @@ namespace TheLearningMaze_API.Filters
 {
     public class ApiAuthFilter : AuthorizationFilterAttribute
     {
-        private bool v = true;
+        private bool _v;
 
         public ApiAuthFilter(bool v)
         {
-            this.v = v;
+            _v = v;
         }
 
         protected bool OnAuthorizeUser(string token, HttpActionContext actionContext)
@@ -45,28 +45,23 @@ namespace TheLearningMaze_API.Filters
             using (var db = new ApplicationDbContext())
             {
                 // Verifica se o cabeçalho contém "Authorization"
-                if (actionContext.Request.Headers.Authorization != null)
-                {
-                    string token = actionContext.Request.Headers.Authorization.ToString().Substring(6); //Retira "Token "
-                    Token tokenEntity = db.Tokens
-                                            .FirstOrDefault(t => t.token == token);
-                    if (tokenEntity != null)
-                    {
-                        if (tokenEntity.expiraEm >= DateTime.Now)
-                        {
-                            // Adiciona 15 minutos ao tempo de expiração
-                            tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
-                            db.Entry(tokenEntity).State = EntityState.Modified;
-                            db.SaveChanges();
+                if (actionContext.Request.Headers.Authorization == null)
+                    return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe    
 
-                            return new HttpStatusCodeResult(HttpStatusCode.OK); //Se token existe e é válido
-                        }
-                        //return HttpStatusCodeCustom.TokenExpired; //Se token existe mas expirou
-                        return new HttpStatusCodeResult(HttpStatusCode.Unauthorized, "Token expirado");
-                    }
-                }
+                var token = actionContext.Request.Headers.Authorization.ToString().Substring(6); //Retira "Token "
+                var tokenEntity = db.Tokens.FirstOrDefault(t => t.token == token);
 
-                return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe    
+                if (tokenEntity == null)
+                    return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe    
+                if (tokenEntity.expiraEm < DateTime.Now)
+                    return new HttpStatusCodeResult(HttpStatusCode.Unauthorized, "Token expirado");
+
+                // Adiciona 15 minutos ao tempo de expiração
+                tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);
+                db.Entry(tokenEntity).State = EntityState.Modified;
+                db.SaveChanges();
+
+                return new HttpStatusCodeResult(HttpStatusCode.OK); //Se token existe e é válido
             }
         }
     }
