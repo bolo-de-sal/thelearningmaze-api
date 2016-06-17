@@ -54,16 +54,23 @@ namespace TheLearningMaze_API.Hubs
         public void ResponderPergunta(string codEvento, int codGrupo, bool acertou)
         {
             var campeao = false;
+            var codGrupoCampeao = 0;
 
             if (acertou)
             {
                 var questoesAcertadas = _db.QuestaoGrupos.Where(g => g.codGrupo == codGrupo && g.correta).ToList();
 
                 if (questoesAcertadas.Count > 8)
+                {
                     campeao = true;
+
+                    var grupoCampeao = questoesAcertadas.FirstOrDefault();
+                    if (grupoCampeao != null)
+                        codGrupoCampeao = grupoCampeao.codGrupo;
+                }
             }
 
-            Clients.OthersInGroup(codEvento).responderPergunta(acertou, campeao);
+            Clients.OthersInGroup(codEvento).responderPergunta(acertou, campeao, codGrupoCampeao);
         }
 
         public void AtivarTimer(string codEvento)
