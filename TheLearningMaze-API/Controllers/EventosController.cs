@@ -544,15 +544,24 @@ namespace TheLearningMaze_API.Controllers
             foreach (var grupo in grupos)
             {
                 var pg = _db.ParticipanteGrupos.FirstOrDefault(p => p.codGrupo == grupo.codGrupo);
-                if (pg == null) return Content(HttpStatusCode.BadRequest, new { message = "Grupo não contém participantes" });
 
-                var ordem = new MasterEventosOrdem
+                if (pg == null)
+                    return Content(HttpStatusCode.BadRequest, new { message = "Grupo não contém participantes" });
+
+                var grupoJaSorteado = _db.MasterEventosOrdem.Any(g => g.codGrupo == grupo.codGrupo);
+
+                if (!grupoJaSorteado)
                 {
-                    codGrupo = grupo.codGrupo,
-                    ordem = i
-                };
-                retorno.Add(ordem);
-                _db.MasterEventosOrdem.Add(ordem);
+                    var ordem = new MasterEventosOrdem
+                    {
+                        codGrupo = grupo.codGrupo,
+                        ordem = i
+                    };
+
+                    retorno.Add(ordem);
+                    _db.MasterEventosOrdem.Add(ordem);
+                }
+
                 i++;
             }
 
