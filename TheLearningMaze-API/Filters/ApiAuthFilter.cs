@@ -54,7 +54,7 @@ namespace TheLearningMaze_API.Filters
                 if (tokenEntity == null)
                     return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe    
                 if (tokenEntity.expiraEm < DateTime.Now)
-                    return new HttpStatusCodeResult(HttpStatusCode.Unauthorized, "Token expirado");
+                    return new HttpStatusCodeResult(HttpStatusCode.RequestTimeout, "Token expirado");
 
                 // Adiciona 15 minutos ao tempo de expiração
                 tokenEntity.expiraEm = DateTime.Now.AddMinutes(15);

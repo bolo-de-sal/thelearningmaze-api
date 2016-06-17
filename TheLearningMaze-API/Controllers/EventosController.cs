@@ -127,7 +127,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(grupos);
 
         }
-        
+
         // GET: api/Eventos/5/GruposCompleto
         [Route("api/Eventos/{id}/GruposCompleto")]
         public IHttpActionResult GetGruposFull(int id)
