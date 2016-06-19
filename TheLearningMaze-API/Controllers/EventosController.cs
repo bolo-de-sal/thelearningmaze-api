@@ -471,7 +471,7 @@ namespace TheLearningMaze_API.Controllers
                                               q.codTipoQuestao,
                                               q.codImagem,
                                               q.dificuldade,
-                                              tempo = DbFunctions.DiffSeconds(DateTime.Now, qe.tempo) > tempoQuestaoAtual ? 0 : DbFunctions.DiffSeconds(DateTime.Now, qe.tempo)
+                                              tempo = DbFunctions.DiffSeconds(qe.tempo, DateTime.Now) > tempoQuestaoAtual ? 0 : DbFunctions.DiffSeconds(qe.tempo, DateTime.Now)
                                           }).FirstOrDefault();
 
             var informacaoAlternativas = new object();
