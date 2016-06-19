@@ -97,9 +97,9 @@ namespace TheLearningMaze_API.Hubs
             Clients.OthersInGroup(codEvento).responderPergunta(acertou, campeao, codGrupoCampeao, acertos);
         }
 
-        public void AtivarTimer(string codEvento)
+        public void AtivarTimer(string codEvento, int tempo)
         {
-            Clients.OthersInGroup(codEvento).ativarTimer();
+            Clients.OthersInGroup(codEvento).ativarTimer(tempo);
         }
 
         public void IniciarJogo(string codEvento)

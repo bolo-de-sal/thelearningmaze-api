@@ -471,7 +471,7 @@ namespace TheLearningMaze_API.Controllers
                                               q.codTipoQuestao,
                                               q.codImagem,
                                               q.dificuldade,
-                                              tempo = tempoQuestaoAtual
+                                              tempo = DateTime.Now.Subtract(qe.tempo ?? DateTime.Now).Seconds > Convert.ToInt32(tempoQuestaoAtual) ? 0 : DateTime.Now.Subtract(qe.tempo ?? DateTime.Now).Seconds
                                           }).FirstOrDefault();
 
             var informacaoAlternativas = new object();
