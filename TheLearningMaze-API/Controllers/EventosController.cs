@@ -786,8 +786,11 @@ namespace TheLearningMaze_API.Controllers
                 }
             }
 
-            questaoGrupo.tempo = DateTime.Now;
-            questaoGrupo.correta = acertou;
+            var questaoGrupo = new QuestaoGrupo
+            {
+                tempo = DateTime.Now,
+                correta = acertou
+            };
 
             questaoAtual.codStatus = "F";
 
@@ -803,6 +806,8 @@ namespace TheLearningMaze_API.Controllers
                     questaoGrupo.textoResp = null;
                     break;
             }
+
+            _db.QuestaoGrupos.Add(questaoGrupo);
 
             _db.SaveChanges();
 
