@@ -755,12 +755,7 @@ namespace TheLearningMaze_API.Controllers
 
             if (alternativas.Count <= 0)
                 return Content(HttpStatusCode.NotFound, new { message = "Não foram encontradas alternativas para a resposta a ser respondida" });
-
-            var questaoGrupo = _db.QuestaoGrupos.FirstOrDefault(q => q.codQuestao == questaoAtual.codQuestao);
-
-            if (questaoGrupo == null)
-                return Content(HttpStatusCode.NotFound, new { message = "A questão atual não está associada ao grupo da vez" });
-
+            
             var acertou = false;
 
             if (!resposta.tempoExpirou)
