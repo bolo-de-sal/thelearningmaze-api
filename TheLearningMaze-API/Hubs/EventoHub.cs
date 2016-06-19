@@ -17,7 +17,7 @@ namespace TheLearningMaze_API.Hubs
 
             if (grupo == null)
                 return;
-
+            
             var evento = _db.Eventos.FirstOrDefault(e => e.codEvento == grupo.codEvento);
 
             if (evento == null)
@@ -30,15 +30,24 @@ namespace TheLearningMaze_API.Hubs
             {
                 var meo = _db.MasterEventosOrdem.FirstOrDefault(m => m.codGrupo == grupo.codGrupo);
 
-                if (meo == null)
-                    return;
-
-                meo.codConexao = Context.ConnectionId;
-                _db.Entry(meo).State = System.Data.Entity.EntityState.Modified;
-                _db.SaveChanges();
+                if (meo != null)
+                {
+                    meo.codConexao = Context.ConnectionId;
+                    _db.Entry(meo).State = System.Data.Entity.EntityState.Modified;
+                    _db.SaveChanges();
+                }
             }
 
-            Clients.Group(evento.codEvento.ToString()).joinEvento(grupo);
+            var infoGrupoParticipante = new
+            {
+                Participante = new
+                {
+                  codParticipante  
+                },
+                Grupo = grupo
+            };
+
+            Clients.Group(evento.codEvento.ToString()).joinEvento(infoGrupoParticipante);
         }
 
         public void JoinEventoProfessor(string codEvento)
