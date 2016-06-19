@@ -50,6 +50,8 @@ namespace TheLearningMaze_API.Controllers
                 Professor _professor = db.Professors
                                         .Where(p => p.email == professor.email)
                                         .FirstOrDefault();
+                if (_professor == null) return Content(HttpStatusCode.BadRequest, new { message = "E-mail e/ou senha incorretos" });
+
                 byte[] pwProfessor = new SHA1CryptoServiceProvider().ComputeHash(Encoding.ASCII.GetBytes(professor.senhaText));
                 if (pwProfessor.SequenceEqual(_professor.senha))
                 {
