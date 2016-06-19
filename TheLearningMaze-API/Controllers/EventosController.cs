@@ -391,7 +391,7 @@ namespace TheLearningMaze_API.Controllers
                                  ).ToList();
 
             if (informacaoGrupo == null)
-                return Content(HttpStatusCode.BadRequest, new { message = "Ocorreu uma falha ao buscar as informações do grupo" });
+                return Ok(new { success = false, message = "Ocorreu uma falha ao buscar as informações do grupo" });
 
             var qtdMovimentosAssuntos = 0;
             var indexCodAssunto = eventoAssuntos.FindIndex(f => f.codAssunto == informacaoGrupo.assunto.codAssunto);
