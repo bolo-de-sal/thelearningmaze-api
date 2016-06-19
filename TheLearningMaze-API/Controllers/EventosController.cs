@@ -458,9 +458,7 @@ namespace TheLearningMaze_API.Controllers
             var informacaoQuestaoAtual = (from qe in _db.QuestaoEventos
                                           join q in _db.Questaos on qe.codQuestao equals q.codQuestao
                                           join a in _db.Assuntos on q.codAssunto equals a.codAssunto
-                                          join qg in _db.QuestaoGrupos on qe.codQuestao equals qg.codQuestao
                                           where qe.codEvento == id && qe.codStatus.Equals("E")
-                                                && qg.codGrupo == informacaoGrupoAtual.codGrupo
                                           select new
                                           {
                                               q.codQuestao,
@@ -480,7 +478,6 @@ namespace TheLearningMaze_API.Controllers
                                          join q in _db.Questaos on qe.codQuestao equals q.codQuestao
                                          join alternativa in _db.Alternativas on q.codQuestao equals alternativa.codQuestao
                                          where qe.codEvento == id && qe.codStatus.Equals("E")
-                                                && qe.codQuestao == informacaoQuestaoAtual.codQuestao
                                          select new
                                          {
                                              alternativa.codAlternativa,
