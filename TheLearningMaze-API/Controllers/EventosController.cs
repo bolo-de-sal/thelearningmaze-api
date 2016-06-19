@@ -764,7 +764,9 @@ namespace TheLearningMaze_API.Controllers
                 {
                     case "A":
                         if (
-                            alternativas.Any(alternativa => alternativa.correta && (alternativa.codAlternativa == resposta.alternativa)))
+                            alternativas.Any(
+                                alternativa =>
+                                    alternativa.correta && (alternativa.codAlternativa == resposta.alternativa)))
                             acertou = true;
 
                         break;
@@ -782,12 +784,20 @@ namespace TheLearningMaze_API.Controllers
                         break;
 
                     default:
-                        return Content(HttpStatusCode.BadRequest, new { message = "Tipo da questão inválido" });
+                        return Content(HttpStatusCode.BadRequest, new {message = "Tipo da questão inválido"});
                 }
+            }
+            else
+            {
+                var alternativa = _db.Alternativas.First(a => !a.correta);
+                resposta.alternativa = alternativa.codAlternativa;
             }
 
             var questaoGrupo = new QuestaoGrupo
             {
+                codQuestao = questaoAtual.codQuestao,
+                codGrupo = resposta.codGrupo,
+                codAlternativa = resposta.alternativa,
                 tempo = DateTime.Now,
                 correta = acertou
             };
@@ -803,7 +813,7 @@ namespace TheLearningMaze_API.Controllers
                     questaoGrupo.textoResp = resposta.verdadeiro.ToString();
                     break;
                 default:
-                    questaoGrupo.textoResp = null;
+                    questaoGrupo.textoResp = string.Empty;
                     break;
             }
 

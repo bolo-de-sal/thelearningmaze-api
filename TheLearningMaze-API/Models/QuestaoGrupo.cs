@@ -9,6 +9,7 @@ namespace TheLearningMaze_API.Models
     public class QuestaoGrupo
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Int32 codQuestao { get; set; }
 
         public Byte codAlternativa { get; set; }

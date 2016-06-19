@@ -4,9 +4,11 @@
     {
         public int codEvento { get; set; }
 
+        public int codGrupo { get; set; }
+
         public string tipoQuestao { get; set; }
 
-        public int alternativa { get; set; }
+        public byte alternativa { get; set; }
 
         public bool verdadeiro { get; set; }
 
