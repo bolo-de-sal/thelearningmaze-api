@@ -424,7 +424,7 @@ namespace TheLearningMaze_API.Controllers
                     break;
             }
 
-            var tempoQuestaoAtual = dificuldadeAtual.Equals("F") ? WebConfigurationManager.AppSettings["tempoQuestaoFacil"] : dificuldadeAtual.Equals("M") ? WebConfigurationManager.AppSettings["tempoQuestaoMedia"] : WebConfigurationManager.AppSettings["tempoQuestaoDificil"];
+            var tempoQuestaoAtual = dificuldadeAtual.Equals("F") ? Convert.ToInt32(WebConfigurationManager.AppSettings["tempoQuestaoFacil"]) : dificuldadeAtual.Equals("M") ? Convert.ToInt32(WebConfigurationManager.AppSettings["tempoQuestaoMedia"]) : Convert.ToInt32(WebConfigurationManager.AppSettings["tempoQuestaoDificil"]);
 
             var indexCodAssuntoAtual = indexCodAssunto + qtdMovimentosAssuntos;
 
@@ -471,7 +471,7 @@ namespace TheLearningMaze_API.Controllers
                                               q.codTipoQuestao,
                                               q.codImagem,
                                               q.dificuldade,
-                                              tempo = DateTime.Now.Subtract(qe.tempo ?? DateTime.Now).Seconds > Convert.ToInt32(tempoQuestaoAtual) ? 0 : DateTime.Now.Subtract(qe.tempo ?? DateTime.Now).Seconds
+                                              tempo = DbFunctions.DiffSeconds(DateTime.Now, qe.tempo) > tempoQuestaoAtual ? 0 : DbFunctions.DiffSeconds(DateTime.Now, qe.tempo)
                                           }).FirstOrDefault();
 
             var informacaoAlternativas = new object();
