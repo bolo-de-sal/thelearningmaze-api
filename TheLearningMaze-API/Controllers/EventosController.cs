@@ -458,7 +458,9 @@ namespace TheLearningMaze_API.Controllers
             var informacaoQuestaoAtual = (from qe in _db.QuestaoEventos
                                           join q in _db.Questaos on qe.codQuestao equals q.codQuestao
                                           join a in _db.Assuntos on q.codAssunto equals a.codAssunto
+                                          join qg in _db.QuestaoGrupos on qe.codQuestao equals qg.codQuestao
                                           where qe.codEvento == id && qe.codStatus.Equals("E")
+                                                && qg.codGrupo == informacaoGrupoAtual.codGrupo
                                           select new
                                           {
                                               q.codQuestao,
@@ -474,15 +476,25 @@ namespace TheLearningMaze_API.Controllers
                                               tempo = tempoQuestaoAtual
                                           }).FirstOrDefault();
 
-            var informacaoAlternativas = from qe in _db.QuestaoEventos
-                                         join q in _db.Questaos on qe.codQuestao equals q.codQuestao
-                                         join alternativa in _db.Alternativas on q.codQuestao equals alternativa.codQuestao
-                                         where qe.codEvento == id && qe.codStatus.Equals("E")
-                                         select new
-                                         {
-                                             alternativa.codAlternativa,
-                                             alternativa.textoAlternativa
-                                         };
+            var informacaoAlternativas = new object();
+
+            if (informacaoQuestaoAtual != null)
+            {
+                informacaoAlternativas = from qe in _db.QuestaoEventos
+                                             join q in _db.Questaos on qe.codQuestao equals q.codQuestao
+                                             join alternativa in _db.Alternativas on q.codQuestao equals alternativa.codQuestao
+                                             where qe.codEvento == id && qe.codStatus.Equals("E")
+                                                    && qe.codQuestao == informacaoQuestaoAtual.codQuestao
+                                             select new
+                                             {
+                                                 alternativa.codAlternativa,
+                                                 alternativa.textoAlternativa
+                                             };
+            }
+            else
+            {
+                informacaoAlternativas = null;
+            }
 
             var informacaoAtual = new
             {
