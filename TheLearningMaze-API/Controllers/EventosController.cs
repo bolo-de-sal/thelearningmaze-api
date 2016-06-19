@@ -718,12 +718,13 @@ namespace TheLearningMaze_API.Controllers
                     return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada" });
 
                 const string sql =
-@"UPDATE QuestaoEvento SET codStatus = 'E' WHERE codEvento = @codEvento AND codQuestao = @codQuestao";
+@"UPDATE QuestaoEvento SET codStatus = 'E', tempo = @tempo WHERE codEvento = @codEvento AND codQuestao = @codQuestao";
 
                 try
                 {
                     dbContext.Database.Connection.ExecuteScalar<int>(sql, new
                     {
+                        tempo = DateTime.Now,
                         requestQuestao.codEvento,
                         requestQuestao.codQuestao
                     });
