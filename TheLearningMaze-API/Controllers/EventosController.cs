@@ -714,8 +714,8 @@ namespace TheLearningMaze_API.Controllers
                 if (questao == null)
                     return Content(HttpStatusCode.NotFound, new { message = "Questão inválida" });
 
-                if (questao.codStatus != "C")
-                    return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada" });
+                //if (questao.codStatus != "C")
+                    //return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada" });
 
                 const string sql =
 @"UPDATE QuestaoEvento SET codStatus = 'E', tempo = @tempo WHERE codEvento = @codEvento AND codQuestao = @codQuestao";
