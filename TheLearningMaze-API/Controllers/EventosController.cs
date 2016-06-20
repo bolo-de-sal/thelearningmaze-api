@@ -743,9 +743,6 @@ namespace TheLearningMaze_API.Controllers
         [Route("api/Eventos/ResponderPergunta")]
         public IHttpActionResult ResponderPergunta(Resposta resposta)
         {
-            if (!ValidaProfessor(resposta.codEvento))
-                return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento" });
-
             var questaoAtual = _db.QuestaoEventos.FirstOrDefault(q => q.codEvento == resposta.codEvento && q.codStatus == "E");
 
             if (questaoAtual == null || questaoAtual.codQuestao == 0)
