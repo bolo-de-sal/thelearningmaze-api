@@ -16,7 +16,7 @@ namespace TheLearningMaze_API.Models
 
         public Int32 codGrupo { get; set; }
 
-        public DateTime tempo { get; set; }
+        public DateTime? tempo { get; set; }
 
         public String textoResp { get; set; }
 
