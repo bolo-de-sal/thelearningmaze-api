@@ -30,7 +30,7 @@ namespace TheLearningMaze_API.Hubs
             {
                 var meo = _db.MasterEventosOrdem.FirstOrDefault(m => m.codGrupo == grupo.codGrupo);
 
-                if (meo != null)
+                if (meo != null && string.IsNullOrEmpty(meo.codConexao))
                 {
                     meo.codConexao = Context.ConnectionId;
                     _db.Entry(meo).State = System.Data.Entity.EntityState.Modified;
