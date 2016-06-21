@@ -863,7 +863,8 @@ namespace TheLearningMaze_API.Controllers
                                             && qe.codEvento == id
                                       select new
                                       {
-                                          qe.codQuestao
+                                          qe.codQuestao,
+                                          qe.codEvento
                                       }).ToArray();
 
                 if (questaoEventos.Length <= 0)
@@ -873,7 +874,11 @@ namespace TheLearningMaze_API.Controllers
 
                 foreach (var qe in questaoEventos)
                 {
-                    var questaoEvento = dbContext.QuestaoEventos.Find(qe);
+                    var questaoEvento = dbContext.QuestaoEventos.FirstOrDefault(q => q.codQuestao == qe.codQuestao && q.codEvento == qe.codEvento);
+
+                    if (questaoEvento == null) 
+                        continue;
+
                     questaoEvento.codStatus = "C";
                     dbContext.Entry(questaoEvento).State = EntityState.Modified;
                     retorno.Add(Convert.ToInt32(qe));
