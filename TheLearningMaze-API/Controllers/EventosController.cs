@@ -378,7 +378,8 @@ namespace TheLearningMaze_API.Controllers
                                        },
                                        infoAtual.Key.ordem
                                    }
-                                  ).FirstOrDefault();
+                                  );
+            var informacaoGrupoAtual = informacaoGrupo.Any(a => a.questao.qtdAcertos == 9) ? informacaoGrupo.OrderByDescending(o => o.questao.qtdAcertos).First() : informacaoGrupo.First();
 
             var eventoAssuntos = (from ea in _db.EventoAssuntos
                                   join a in _db.Assuntos on ea.codAssunto equals a.codAssunto
@@ -390,14 +391,14 @@ namespace TheLearningMaze_API.Controllers
                                   }
                                  ).ToList();
 
-            if (informacaoGrupo == null)
+            if (informacaoGrupoAtual == null)
                 return Ok(new { success = false, message = "Ocorreu uma falha ao buscar as informações do grupo" });
 
             var qtdMovimentosAssuntos = 0;
-            var indexCodAssunto = eventoAssuntos.FindIndex(f => f.codAssunto == informacaoGrupo.assunto.codAssunto);
+            var indexCodAssunto = eventoAssuntos.FindIndex(f => f.codAssunto == informacaoGrupoAtual.assunto.codAssunto);
             var dificuldadeAtual = "F";
 
-            switch (informacaoGrupo.questao.qtdAcertos)
+            switch (informacaoGrupoAtual.questao.qtdAcertos)
             {
                 case 4:
                     qtdMovimentosAssuntos += 1;
@@ -436,11 +437,11 @@ namespace TheLearningMaze_API.Controllers
             var codAssuntoAtual = eventoAssuntos[indexCodAssuntoAtual].codAssunto;
             var descricaoAssuntoAtual = eventoAssuntos[indexCodAssuntoAtual].descricao;
 
-            var informacaoGrupoAtual = new
+            var informacaoGrupoAtualCompleta = new
             {
-                informacaoGrupo.codGrupo,
-                informacaoGrupo.nmGrupo,
-                informacaoGrupo.codLider,
+                informacaoGrupoAtual.codGrupo,
+                informacaoGrupoAtual.nmGrupo,
+                informacaoGrupoAtual.codLider,
                 assunto = new
                 {
                     codAssunto = codAssuntoAtual,
@@ -448,11 +449,11 @@ namespace TheLearningMaze_API.Controllers
                 },
                 questao = new
                 {
-                    informacaoGrupo.questao.qtdRespondidas,
-                    informacaoGrupo.questao.qtdAcertos,
+                    informacaoGrupoAtual.questao.qtdRespondidas,
+                    informacaoGrupoAtual.questao.qtdAcertos,
                     dificuldade = dificuldadeAtual
                 },
-                informacaoGrupo.ordem
+                informacaoGrupoAtual.ordem
             };
 
             var informacaoQuestaoAtual = (from qe in _db.QuestaoEventos
@@ -496,7 +497,7 @@ namespace TheLearningMaze_API.Controllers
 
             var informacaoAtual = new
             {
-                Grupo = informacaoGrupoAtual,
+                Grupo = informacaoGrupoAtualCompleta,
                 Questao = informacaoQuestaoAtual,
                 Alternativas = informacaoAlternativas
             };
