@@ -378,7 +378,7 @@ namespace TheLearningMaze_API.Controllers
                                        },
                                        infoAtual.Key.ordem
                                    }
-                                  );
+                                  ).ToList();
             var informacaoGrupoAtual = informacaoGrupo.Any(a => a.questao.qtdAcertos == 9) ? informacaoGrupo.OrderByDescending(o => o.questao.qtdAcertos).First() : informacaoGrupo.First();
 
             var eventoAssuntos = (from ea in _db.EventoAssuntos
@@ -417,6 +417,7 @@ namespace TheLearningMaze_API.Controllers
                     dificuldadeAtual = "M";
                     break;
                 case 8:
+                case 9:
                     qtdMovimentosAssuntos += 4;
                     dificuldadeAtual = "D";
                     break;
@@ -429,9 +430,9 @@ namespace TheLearningMaze_API.Controllers
 
             var indexCodAssuntoAtual = indexCodAssunto + qtdMovimentosAssuntos;
 
-            if (indexCodAssuntoAtual > eventoAssuntos.Count)
+            if (indexCodAssuntoAtual > (eventoAssuntos.Count - 1))
             {
-                indexCodAssuntoAtual = indexCodAssuntoAtual - eventoAssuntos.Count - 1;
+                indexCodAssuntoAtual = indexCodAssuntoAtual - eventoAssuntos.Count;
             }
 
             var codAssuntoAtual = eventoAssuntos[indexCodAssuntoAtual].codAssunto;

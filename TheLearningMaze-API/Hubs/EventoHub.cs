@@ -93,10 +93,6 @@ namespace TheLearningMaze_API.Hubs
                         codGrupoCampeao = grupoCampeao.codGrupo;
                 }
             }
-            acertou = true;
-            campeao = true;
-            codGrupoCampeao = codGrupo;
-            acertos = 9;
             Clients.Group(codEvento).responderPergunta(acertou, campeao, codGrupoCampeao, acertos);
         }
 
