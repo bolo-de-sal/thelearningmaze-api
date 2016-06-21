@@ -807,7 +807,8 @@ namespace TheLearningMaze_API.Controllers
                     questaoGrupo.textoResp = resposta.texto;
                     break;
                 case "V":
-                    questaoGrupo.textoResp = resposta.verdadeiro.ToString();
+                    questaoGrupo.codAlternativa = alternativas.First().codAlternativa;
+                    questaoGrupo.textoResp = resposta.verdadeiro ? "V" : "F";
                     break;
                 default:
                     questaoGrupo.textoResp = string.Empty;
