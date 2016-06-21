@@ -254,7 +254,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
-        [ProfAuthFilter]
+        //[ProfAuthFilter]
         // GET: api/Eventos/5/Questoes
         [Route("api/Eventos/{id}/Questoes")]
         public IHttpActionResult GetQuestoesEvento(int id)
@@ -263,7 +263,7 @@ namespace TheLearningMaze_API.Controllers
                 return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
 
             var questoes = _db.QuestaoEventos
-                             .Where(q => q.codEvento == id && q.codStatus != "E")
+                             .Where(q => q.codEvento == id && q.codStatus != "E" && q.codStatus != "F")
                              .Select(q => q.codQuestao)
                              .ToList();
 
