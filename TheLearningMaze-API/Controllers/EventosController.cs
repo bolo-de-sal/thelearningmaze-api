@@ -804,6 +804,7 @@ namespace TheLearningMaze_API.Controllers
             switch (resposta.tipoQuestao)
             {
                 case "T":
+                    questaoGrupo.codAlternativa = alternativas.First().codAlternativa;
                     questaoGrupo.textoResp = resposta.texto;
                     break;
                 case "V":
