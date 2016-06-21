@@ -379,6 +379,10 @@ namespace TheLearningMaze_API.Controllers
                                        infoAtual.Key.ordem
                                    }
                                   ).ToList();
+
+            if (!informacaoGrupo.Any())
+                return Ok(new { success = false, message = "Ocorreu uma falha ao buscar as informações do grupo" });
+
             var informacaoGrupoAtual = informacaoGrupo.Any(a => a.questao.qtdAcertos == 9) ? informacaoGrupo.OrderByDescending(o => o.questao.qtdAcertos).First() : informacaoGrupo.First();
 
             var eventoAssuntos = (from ea in _db.EventoAssuntos
@@ -390,10 +394,7 @@ namespace TheLearningMaze_API.Controllers
                                       a.descricao
                                   }
                                  ).ToList();
-
-            if (informacaoGrupoAtual == null)
-                return Ok(new { success = false, message = "Ocorreu uma falha ao buscar as informações do grupo" });
-
+            
             var qtdMovimentosAssuntos = 0;
             var indexCodAssunto = eventoAssuntos.FindIndex(f => f.codAssunto == informacaoGrupoAtual.assunto.codAssunto);
             var dificuldadeAtual = "F";
