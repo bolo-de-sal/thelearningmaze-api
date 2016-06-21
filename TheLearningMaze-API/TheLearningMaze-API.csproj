@@ -283,6 +283,7 @@
     <Compile Include="Models\Grupo.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Imagem.cs" />
+    <Compile Include="Models\InfoGrupoAtual.cs" />
     <Compile Include="Models\MasterEventosOrdem.cs" />
     <Compile Include="Models\Participante.cs" />
     <Compile Include="Models\ParticipanteGrupo.cs" />

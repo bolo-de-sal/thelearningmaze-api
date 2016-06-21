@@ -262,21 +262,184 @@ namespace TheLearningMaze_API.Controllers
             if (!ValidaProfessor(id))
                 return Content(HttpStatusCode.Unauthorized, new { message = "Professor não corresponde ao evento!" });
 
-            var questoes = _db.QuestaoEventos
+            var informacaoGrupo = (from g in _db.Grupos
+                                   join meo in _db.MasterEventosOrdem on g.codGrupo equals meo.codGrupo
+                                   join a in _db.Assuntos on g.codAssunto equals a.codAssunto
+                                   join qg in _db.QuestaoGrupos on g.codGrupo equals qg.codGrupo into ia
+                                   from ia1 in ia.DefaultIfEmpty()
+                                   where g.codEvento == id
+                                   group ia1 by new { g.codGrupo, g.nmGrupo, g.codLider, a.codAssunto, a.descricao, meo.ordem } into infoAtual
+                                   orderby new { quantidade = infoAtual.Count(c => c != null), infoAtual.Key.ordem }
+                                   select new
+                                   {
+                                       infoAtual.Key.codGrupo,
+                                       infoAtual.Key.nmGrupo,
+                                       infoAtual.Key.codLider,
+                                       assunto = new
+                                       {
+                                           infoAtual.Key.codAssunto,
+                                           infoAtual.Key.descricao
+                                       },
+                                       questao = new
+                                       {
+                                           qtdRespondidas = infoAtual.Count(c => c != null),
+                                           qtdAcertos = infoAtual.Count(c => c != null && c.correta)
+                                       },
+                                       infoAtual.Key.ordem
+                                   }
+                                  ).ToList();
+
+            if (!informacaoGrupo.Any())
+                return Ok(new { success = false, message = "Ocorreu uma falha ao buscar as informações do grupo" });
+
+            var informacaoGrupoAtual = informacaoGrupo.Any(a => a.questao.qtdAcertos == 9) ? informacaoGrupo.OrderByDescending(o => o.questao.qtdAcertos).First() : informacaoGrupo.First();
+
+            var eventoAssuntos = (from ea in _db.EventoAssuntos
+                                  join a in _db.Assuntos on ea.codAssunto equals a.codAssunto
+                                  where ea.codEvento == id
+                                  select new
+                                  {
+                                      a.codAssunto,
+                                      a.descricao
+                                  }
+                                 ).ToList();
+
+            var qtdMovimentosAssuntos = 0;
+            var indexCodAssunto = eventoAssuntos.FindIndex(f => f.codAssunto == informacaoGrupoAtual.assunto.codAssunto);
+            var dificuldadeAtual = "F";
+
+            switch (informacaoGrupoAtual.questao.qtdAcertos)
+            {
+                case 4:
+                    qtdMovimentosAssuntos += 1;
+                    dificuldadeAtual = "M";
+                    break;
+                case 5:
+                    qtdMovimentosAssuntos += 2;
+                    dificuldadeAtual = "M";
+                    break;
+                case 6:
+                    qtdMovimentosAssuntos += 3;
+                    dificuldadeAtual = "M";
+                    break;
+                case 7:
+                    qtdMovimentosAssuntos += 4;
+                    dificuldadeAtual = "M";
+                    break;
+                case 8:
+                case 9:
+                    qtdMovimentosAssuntos += 4;
+                    dificuldadeAtual = "D";
+                    break;
+                default:
+                    qtdMovimentosAssuntos = 0;
+                    break;
+            }
+
+            var tempoQuestaoAtual = dificuldadeAtual.Equals("F") ? Convert.ToInt32(WebConfigurationManager.AppSettings["tempoQuestaoFacil"]) : dificuldadeAtual.Equals("M") ? Convert.ToInt32(WebConfigurationManager.AppSettings["tempoQuestaoMedia"]) : Convert.ToInt32(WebConfigurationManager.AppSettings["tempoQuestaoDificil"]);
+
+            var indexCodAssuntoAtual = indexCodAssunto + qtdMovimentosAssuntos;
+
+            if (indexCodAssuntoAtual > (eventoAssuntos.Count - 1))
+            {
+                indexCodAssuntoAtual = indexCodAssuntoAtual - eventoAssuntos.Count;
+            }
+
+            var codAssuntoAtual = eventoAssuntos[indexCodAssuntoAtual].codAssunto;
+            var descricaoAssuntoAtual = eventoAssuntos[indexCodAssuntoAtual].descricao;
+
+            var informacaoGrupoAtualCompleta = new
+            {
+                informacaoGrupoAtual.codGrupo,
+                informacaoGrupoAtual.nmGrupo,
+                informacaoGrupoAtual.codLider,
+                assunto = new
+                {
+                    codAssunto = codAssuntoAtual,
+                    descricao = descricaoAssuntoAtual
+                },
+                questao = new
+                {
+                    informacaoGrupoAtual.questao.qtdRespondidas,
+                    informacaoGrupoAtual.questao.qtdAcertos,
+                    dificuldade = dificuldadeAtual
+                },
+                informacaoGrupoAtual.ordem
+            };
+
+            var informacaoQuestaoAtual = (from qe in _db.QuestaoEventos
+                                          join q in _db.Questaos on qe.codQuestao equals q.codQuestao
+                                          join a in _db.Assuntos on q.codAssunto equals a.codAssunto
+                                          where qe.codEvento == id && qe.codStatus.Equals("E") && q.codAssunto == codAssuntoAtual
+                                          select new
+                                          {
+                                              q.codQuestao,
+                                              q.textoQuestao,
+                                              assunto = new
+                                              {
+                                                  a.codAssunto,
+                                                  a.descricao
+                                              },
+                                              q.codTipoQuestao,
+                                              q.codImagem,
+                                              q.dificuldade,
+                                              tempo = (tempoQuestaoAtual - DbFunctions.DiffSeconds(qe.tempo, DateTime.Now)) > 0 ? (tempoQuestaoAtual - DbFunctions.DiffSeconds(qe.tempo, DateTime.Now)) : 0
+                                          }).FirstOrDefault();
+
+            object informacaoAlternativas;
+
+            if (informacaoQuestaoAtual != null)
+            {
+                informacaoAlternativas = from qe in _db.QuestaoEventos
+                                         join q in _db.Questaos on qe.codQuestao equals q.codQuestao
+                                         join alternativa in _db.Alternativas on q.codQuestao equals alternativa.codQuestao
+                                         where qe.codEvento == id && qe.codStatus.Equals("E")
+                                                && qe.codQuestao == informacaoQuestaoAtual.codQuestao
+                                         select new
+                                         {
+                                             alternativa.codAlternativa,
+                                             alternativa.textoAlternativa
+                                         };
+            }
+            else
+            {
+                informacaoAlternativas = null;
+            }
+
+            var informacaoAtual = new
+            {
+                Grupo = informacaoGrupoAtualCompleta,
+                Questao = informacaoQuestaoAtual,
+                Alternativas = informacaoAlternativas
+            };
+
+            var questoesAssuntoAtual = (from q in _db.Questaos
+                                        join qe in _db.QuestaoEventos on q.codQuestao equals qe.codQuestao
+                                        where qe.codEvento == id && q.codAssunto == informacaoAtual.Grupo.assunto.codAssunto
+                                        select new
+                                        {
+                                            q.codQuestao
+                                        }
+                                 ).ToList();
+
+            List<int> questoes;
+
+            if (questoesAssuntoAtual.Count <= 0)
+            {
+                questoes = ReciclaQuestoes(id, informacaoAtual.Grupo.assunto.codAssunto);
+
+                if (questoes == null || questoes.Count <= 0)
+                    return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas/para serem recicladas" });
+            }
+            else
+            {
+                questoes = _db.QuestaoEventos
                              .Where(q => q.codEvento == id && q.codStatus != "E" && q.codStatus != "F")
                              .Select(q => q.codQuestao)
                              .ToList();
-
-            if (questoes.Count <= 0)
-            {
-                questoes = ReciclaQuestoes(id);
-
-                if (questoes.Count <= 0)
-                    return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas/para serem recicladas" });
             }
 
-
-            var retorno = new List<Object>();
+            var retorno = new List<object>();
 
             foreach (var qe in questoes)
             {
@@ -394,7 +557,7 @@ namespace TheLearningMaze_API.Controllers
                                       a.descricao
                                   }
                                  ).ToList();
-            
+
             var qtdMovimentosAssuntos = 0;
             var indexCodAssunto = eventoAssuntos.FindIndex(f => f.codAssunto == informacaoGrupoAtual.assunto.codAssunto);
             var dificuldadeAtual = "F";
@@ -482,15 +645,15 @@ namespace TheLearningMaze_API.Controllers
             if (informacaoQuestaoAtual != null)
             {
                 informacaoAlternativas = from qe in _db.QuestaoEventos
-                                             join q in _db.Questaos on qe.codQuestao equals q.codQuestao
-                                             join alternativa in _db.Alternativas on q.codQuestao equals alternativa.codQuestao
-                                             where qe.codEvento == id && qe.codStatus.Equals("E")
-                                                    && qe.codQuestao == informacaoQuestaoAtual.codQuestao
-                                             select new
-                                             {
-                                                 alternativa.codAlternativa,
-                                                 alternativa.textoAlternativa
-                                             };
+                                         join q in _db.Questaos on qe.codQuestao equals q.codQuestao
+                                         join alternativa in _db.Alternativas on q.codQuestao equals alternativa.codQuestao
+                                         where qe.codEvento == id && qe.codStatus.Equals("E")
+                                                && qe.codQuestao == informacaoQuestaoAtual.codQuestao
+                                         select new
+                                         {
+                                             alternativa.codAlternativa,
+                                             alternativa.textoAlternativa
+                                         };
             }
             else
             {
@@ -718,7 +881,7 @@ namespace TheLearningMaze_API.Controllers
                     return Content(HttpStatusCode.NotFound, new { message = "Questão inválida" });
 
                 //if (questao.codStatus != "C")
-                    //return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada" });
+                //return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada" });
 
                 const string sql =
 @"UPDATE QuestaoEvento SET codStatus = 'E', tempo = @tempo WHERE codEvento = @codEvento AND codQuestao = @codQuestao";
@@ -755,7 +918,7 @@ namespace TheLearningMaze_API.Controllers
 
             if (alternativas.Count <= 0)
                 return Content(HttpStatusCode.NotFound, new { message = "Não foram encontradas alternativas para a resposta a ser respondida" });
-            
+
             var acertou = false;
 
             if (!resposta.tempoExpirou)
@@ -784,7 +947,7 @@ namespace TheLearningMaze_API.Controllers
                         break;
 
                     default:
-                        return Content(HttpStatusCode.BadRequest, new {message = "Tipo da questão inválido"});
+                        return Content(HttpStatusCode.BadRequest, new { message = "Tipo da questão inválido" });
                 }
             }
             else
@@ -820,7 +983,7 @@ namespace TheLearningMaze_API.Controllers
             }
 
             _db.QuestaoGrupos.Add(questaoGrupo);
-            
+
             _db.SaveChanges();
 
             return Ok(questaoGrupo);
@@ -852,15 +1015,17 @@ namespace TheLearningMaze_API.Controllers
             }
         }
 
-        private List<int> ReciclaQuestoes(int id)
+        private List<int> ReciclaQuestoes(int eventoID, int assuntoID)
         {
             using (var dbContext = new ApplicationDbContext())
             {
                 var questaoEventos = (from qe in dbContext.QuestaoEventos
                                       join qg in dbContext.QuestaoGrupos on qe.codQuestao equals qg.codQuestao
+                                      join q in dbContext.Questaos on qe.codQuestao equals q.codQuestao
                                       where qg.correta == false
                                             && qe.codStatus.Equals("F")
-                                            && qe.codEvento == id
+                                            && qe.codEvento == eventoID
+                                            && q.codAssunto == assuntoID
                                       select new
                                       {
                                           qe.codQuestao,
@@ -876,12 +1041,12 @@ namespace TheLearningMaze_API.Controllers
                 {
                     var questaoEvento = dbContext.QuestaoEventos.FirstOrDefault(q => q.codQuestao == qe.codQuestao && q.codEvento == qe.codEvento);
 
-                    if (questaoEvento == null) 
+                    if (questaoEvento == null)
                         continue;
 
                     questaoEvento.codStatus = "C";
                     dbContext.Entry(questaoEvento).State = EntityState.Modified;
-                    retorno.Add(Convert.ToInt32(qe));
+                    retorno.Add(Convert.ToInt32(qe.codQuestao));
                 }
 
                 dbContext.SaveChanges();
