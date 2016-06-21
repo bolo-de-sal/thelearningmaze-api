@@ -477,7 +477,7 @@ namespace TheLearningMaze_API.Controllers
                                               tempo = (tempoQuestaoAtual - DbFunctions.DiffSeconds(qe.tempo, DateTime.Now)) > 0 ? (tempoQuestaoAtual - DbFunctions.DiffSeconds(qe.tempo, DateTime.Now)) : 0
                                           }).FirstOrDefault();
 
-            var informacaoAlternativas = new object();
+            object informacaoAlternativas;
 
             if (informacaoQuestaoAtual != null)
             {
