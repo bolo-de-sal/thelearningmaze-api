@@ -415,28 +415,24 @@ namespace TheLearningMaze_API.Controllers
 
             var questoesAssuntoAtual = (from q in _db.Questaos
                                         join qe in _db.QuestaoEventos on q.codQuestao equals qe.codQuestao
-                                        where qe.codEvento == id && q.codAssunto == informacaoAtual.Grupo.assunto.codAssunto
+                                        where qe.codEvento == id && q.codAssunto == informacaoAtual.Grupo.assunto.codAssunto && qe.codStatus != "E" && qe.codStatus != "F"
                                         select new
                                         {
                                             q.codQuestao
                                         }
                                  ).ToList();
 
-            List<int> questoes;
-
-            if (questoesAssuntoAtual.Count <= 0)
-            {
-                questoes = ReciclaQuestoes(id, informacaoAtual.Grupo.assunto.codAssunto);
-
-                if (questoes == null || questoes.Count <= 0)
-                    return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões cadastradas/para serem recicladas" });
-            }
-            else
-            {
-                questoes = _db.QuestaoEventos
+            var questoes = _db.QuestaoEventos
                              .Where(q => q.codEvento == id && q.codStatus != "E" && q.codStatus != "F")
                              .Select(q => q.codQuestao)
                              .ToList();
+
+            if (questoesAssuntoAtual.Count <= 0)
+            {
+                questoes.AddRange(ReciclaQuestoes(id, informacaoAtual.Grupo.assunto.codAssunto, informacaoAtual.Grupo.questao.dificuldade));
+
+                if (questoes.Count <= 0)
+                    return Content(HttpStatusCode.NotFound, new { message = "Evento não tem questões disponíveis para o assunto atual do grupo" });
             }
 
             var retorno = new List<object>();
@@ -1015,7 +1011,7 @@ namespace TheLearningMaze_API.Controllers
             }
         }
 
-        private List<int> ReciclaQuestoes(int eventoID, int assuntoID)
+        private List<int> ReciclaQuestoes(int eventoID, int assuntoID, string dificuldadeAtual)
         {
             using (var dbContext = new ApplicationDbContext())
             {
@@ -1026,6 +1022,7 @@ namespace TheLearningMaze_API.Controllers
                                             && qe.codStatus.Equals("F")
                                             && qe.codEvento == eventoID
                                             && q.codAssunto == assuntoID
+                                            && q.dificuldade == dificuldadeAtual
                                       select new
                                       {
                                           qe.codQuestao,
