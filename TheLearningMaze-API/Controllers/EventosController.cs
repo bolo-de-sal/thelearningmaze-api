@@ -254,7 +254,7 @@ namespace TheLearningMaze_API.Controllers
             return Ok(retorno);
         }
 
-        //[ProfAuthFilter]
+        [ProfAuthFilter]
         // GET: api/Eventos/5/Questoes
         [Route("api/Eventos/{id}/Questoes")]
         public IHttpActionResult GetQuestoesEvento(int id)
