@@ -415,10 +415,10 @@ namespace TheLearningMaze_API.Controllers
 
             var questoesAssuntoAtual = (from q in _db.Questaos
                                         join qe in _db.QuestaoEventos on q.codQuestao equals qe.codQuestao
-                                        where qe.codEvento == id 
-                                            && q.codAssunto == informacaoAtual.Grupo.assunto.codAssunto 
+                                        where qe.codEvento == id
+                                            && q.codAssunto == informacaoAtual.Grupo.assunto.codAssunto
                                             && q.dificuldade == informacaoAtual.Grupo.questao.dificuldade
-                                            && qe.codStatus != "E" 
+                                            && qe.codStatus != "E"
                                             && qe.codStatus != "F"
                                         select new
                                         {
@@ -918,6 +918,16 @@ namespace TheLearningMaze_API.Controllers
 
             if (alternativas.Count <= 0)
                 return Content(HttpStatusCode.NotFound, new { message = "Não foram encontradas alternativas para a resposta a ser respondida" });
+
+            var mesmaResposta =
+                _db.QuestaoGrupos.Any(
+                    q =>
+                        q.codQuestao == questaoAtual.codQuestao
+                        && q.codGrupo == resposta.codGrupo
+                        && q.codAlternativa == resposta.alternativa);
+
+            if (mesmaResposta)
+                return Content(HttpStatusCode.BadRequest, new { message = "Assim como Homer Simpson, você está cometendo o mesmo erro esperando um resultado diferente" });
 
             var acertou = false;
 
