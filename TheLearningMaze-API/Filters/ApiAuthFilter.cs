@@ -51,10 +51,8 @@ namespace TheLearningMaze_API.Filters
                 var token = actionContext.Request.Headers.Authorization.ToString().Substring(6); //Retira "Token "
                 var tokenEntity = db.Tokens.FirstOrDefault(t => t.token == token);
 
-                if (tokenEntity == null)
-                    return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe    
-                if (tokenEntity.expiraEm < DateTime.Now)
-                    return new HttpStatusCodeResult(HttpStatusCode.RequestTimeout, "Token expirado");
+                if (tokenEntity == null || tokenEntity.expiraEm < DateTime.Now)
+                    return new HttpStatusCodeResult(HttpStatusCode.RequestTimeout, "Token expirado"); //Se token não existe ou expirou
 
                 // Adiciona 480 minutos (8 horas) ao tempo de expiração
                 tokenEntity.expiraEm = DateTime.Now.AddMinutes(480);

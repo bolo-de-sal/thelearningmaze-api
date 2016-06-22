@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using System.Web.Mvc;
 using TheLearningMaze_API.Custom;
 using TheLearningMaze_API.Models;
 
@@ -19,9 +20,9 @@ namespace TheLearningMaze_API.Filters
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
-            HttpStatusCodeCustom status = AuthorizeRequest(actionContext);
+            var status = AuthorizeRequest(actionContext);
 
-            if (status == HttpStatusCodeCustom.OK)
+            if ((HttpStatusCodeCustom)status.StatusCode == HttpStatusCodeCustom.OK)
             {
                 return;
             }
@@ -29,18 +30,18 @@ namespace TheLearningMaze_API.Filters
             HandleUnauthorizedRequest(actionContext, status);
         }
 
-        protected void HandleUnauthorizedRequest(HttpActionContext actionContext, HttpStatusCodeCustom status)
+        protected void HandleUnauthorizedRequest(HttpActionContext actionContext, HttpStatusCodeResult status)
         {
-            actionContext.Response = new HttpResponseMessage((HttpStatusCode)status);
+            actionContext.Response = actionContext.Request.CreateResponse((HttpStatusCode)status.StatusCode, status.StatusDescription);
         }
 
-        private HttpStatusCodeCustom AuthorizeRequest(HttpActionContext actionContext)
+        private HttpStatusCodeResult AuthorizeRequest(HttpActionContext actionContext)
         {
             using (var dbContext = new ApplicationDbContext())
             {
                 // Verifica se o cabeçalho contém "Authorization"
                 if (actionContext.Request.Headers.Authorization == null)
-                    return HttpStatusCodeCustom.Unauthorized; //Se token não existe
+                    return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); //Se token não existe 
 
                 var token = actionContext.Request.Headers.Authorization.ToString();
 
@@ -49,18 +50,15 @@ namespace TheLearningMaze_API.Filters
 
                 var tokenEntity = dbContext.Tokens.FirstOrDefault(t => t.token == tokenProf.token);
 
-                if (tokenEntity == null || tokenProf.codProfessor != tokenEntity.codProfessor)
-                    return HttpStatusCodeCustom.Unauthorized; //Se token não existe
+                if (tokenEntity == null || tokenProf.codProfessor != tokenEntity.codProfessor || tokenEntity.expiraEm < DateTime.Now)
+                    return new HttpStatusCodeResult(HttpStatusCode.RequestTimeout, "Token expirado"); //Se token não existe ou expirou
 
-                if (tokenEntity.expiraEm < DateTime.Now)
-                    return HttpStatusCodeCustom.TokenExpired; //Se token existe mas expirou
-                    
                 // Adiciona 480 minutos (8 horas) ao tempo de expiração
                 tokenEntity.expiraEm = DateTime.Now.AddMinutes(480);
                 dbContext.Entry(tokenEntity).State = EntityState.Modified;
                 dbContext.SaveChanges();
 
-                return HttpStatusCodeCustom.OK; //Se token existe e é válido
+                return new HttpStatusCodeResult(HttpStatusCode.OK); //Se token existe e é válido
             }
         }
     }

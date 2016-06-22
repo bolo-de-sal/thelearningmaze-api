@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Web.Http;
+﻿using System.Web.Http;
 using Microsoft.Owin.Security.OAuth;
-using Newtonsoft.Json.Serialization;
 using System.Net.Http.Headers;
 using System.Web.Http.Cors;
 
@@ -14,6 +9,10 @@ namespace TheLearningMaze_API
     {
         public static void Register(HttpConfiguration config)
         {
+            // Habilitar CORS para uso a partir do Angular
+            var cors = new EnableCorsAttribute("*", "*", "*");
+            config.EnableCors(cors);
+
             // Web API configuration and services
             // Configure Web API to use only bearer token authentication.
             config.SuppressDefaultHostAuthentication();
@@ -30,10 +29,6 @@ namespace TheLearningMaze_API
 
             //Retorno em JSON
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
-
-            // Habilitar CORS para uso a partir do Angular
-            var cors = new EnableCorsAttribute("*", "*", "*");
-            config.EnableCors(cors);
         }
     }
 }

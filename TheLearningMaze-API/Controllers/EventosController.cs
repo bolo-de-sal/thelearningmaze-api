@@ -118,15 +118,13 @@ namespace TheLearningMaze_API.Controllers
         public IHttpActionResult GetGruposEvento(int id)
         {
             var evento = _db.Eventos.Find(id);
-            if (evento == null) return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
+
+            if (evento == null)
+                return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
             var grupos = _db.Grupos.Where(g => g.codEvento == evento.codEvento).ToList();
 
-            if (!grupos.Any())
-                return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
-
             return Ok(grupos);
-
         }
 
         // GET: api/Eventos/5/GruposCompleto
@@ -138,22 +136,13 @@ namespace TheLearningMaze_API.Controllers
             if (evento == null)
                 return Content(HttpStatusCode.NotFound, new { message = "Evento não encontrado" });
 
-            var grupos = _db.Grupos
-                .Where(g => g.codEvento == evento.codEvento)
-                .ToList();
-
-            if (grupos.Count <= 0)
-                return Content(HttpStatusCode.NotFound, new { message = "Evento não tem grupos cadastrados" });
+            var grupos = _db.Grupos.Where(g => g.codEvento == evento.codEvento).ToList();
 
             var retorno = new List<object>();
 
             foreach (var grupo in grupos)
             {
-                var pgs = _db.ParticipanteGrupos
-                            .Where(p => p.codGrupo == grupo.codGrupo)
-                            .ToList();
-
-                if (pgs.Count <= 0) return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem participantes" });
+                var pgs = _db.ParticipanteGrupos.Where(p => p.codGrupo == grupo.codGrupo).ToList();
 
                 var participantes = new List<Participante>();
 
@@ -172,17 +161,12 @@ namespace TheLearningMaze_API.Controllers
                 if (assunto == null)
                     return Content(HttpStatusCode.NotFound, new { message = "Grupo não tem assunto definido ou assunto não encontrado" });
 
-                var acertos = _db.QuestaoGrupos
-                                .Where(a => a.codGrupo == grupo.codGrupo && a.correta)
-                                .ToList();
+                var acertos = _db.QuestaoGrupos.Where(a => a.codGrupo == grupo.codGrupo && a.correta).ToList();
 
                 var grupoFull = new { Grupo = grupo, ParticipantesGrupo = participantes, Assunto = assunto, Acertos = acertos.Count };
 
                 retorno.Add(grupoFull);
             }
-
-            if (retorno.Count <= 0)
-                return Content(HttpStatusCode.NotFound, new { message = "Ocorreu um erro ao trazer as informações do banco de dados. Por favor, tente novamente" });
 
             return Ok(retorno);
         }
@@ -202,18 +186,13 @@ namespace TheLearningMaze_API.Controllers
             if (evento.codStatus == "A" && evento.codStatus == "C")
                 return Content(HttpStatusCode.BadRequest, new { message = "Evento ainda não foi iniciado" });
 
-            var grupos = _db.Grupos
-                .Where(g => g.codEvento == evento.codEvento)
-                .ToList();
+            var grupos = _db.Grupos.Where(g => g.codEvento == evento.codEvento).ToList();
 
             var retorno = new List<object>();
 
             foreach (var grupo in grupos)
             {
-                var qg = _db.QuestaoGrupos
-                                .Where(q => q.codGrupo == grupo.codGrupo)
-                                .OrderBy(q => q.tempo)
-                                .ToList();
+                var qg = _db.QuestaoGrupos.Where(q => q.codGrupo == grupo.codGrupo).OrderBy(q => q.tempo).ToList();
 
                 retorno.Add(new
                 {
@@ -453,12 +432,12 @@ namespace TheLearningMaze_API.Controllers
                 if (a == null)
                     return Content(HttpStatusCode.NotFound, new { message = "Assunto não encontrado" });
 
-                retorno.Add(new
-                        {
-                            Questao = q,
-                            Assunto = a
-                        }
-                    );
+                retorno.Add(
+                    new
+                    {
+                        Questao = q,
+                        Assunto = a
+                    });
             }
 
             return Ok(retorno);
@@ -693,10 +672,9 @@ namespace TheLearningMaze_API.Controllers
             if (grupos.Count < 2)
                 return Content(HttpStatusCode.BadRequest, new { message = "Evento não tem grupos suficientes para iniciar" });
 
-            foreach (var grupo in grupos)
+            if (grupos.Any(grupo => grupo.finalizado != null && !grupo.finalizado.Value))
             {
-                if (!grupo.finalizado.Value)
-                    return Content(HttpStatusCode.BadRequest, new { message = "Evento não pode ser iniciado até que todos os grupos estejam finalizados" });
+                return Content(HttpStatusCode.BadRequest, new { message = "Evento não pode ser iniciado até que todos os grupos estejam finalizados" });
             }
 
             var quantAssuntosGrupo = _db.Grupos.Where(g => g.codEvento == evento.codEvento).Select(g => g.codAssunto).Distinct();
@@ -886,9 +864,6 @@ namespace TheLearningMaze_API.Controllers
                 if (questao == null)
                     return Content(HttpStatusCode.NotFound, new { message = "Questão inválida" });
 
-                //if (questao.codStatus != "C")
-                //return Content(HttpStatusCode.BadRequest, new { message = "Questão já lançada" });
-
                 const string sql =
 @"UPDATE QuestaoEvento SET codStatus = 'E', tempo = @tempo WHERE codEvento = @codEvento AND codQuestao = @codQuestao";
 
@@ -925,12 +900,9 @@ namespace TheLearningMaze_API.Controllers
             if (alternativas.Count <= 0)
                 return Content(HttpStatusCode.NotFound, new { message = "Não foram encontradas alternativas para a resposta a ser respondida" });
 
-            var mesmaResposta =
-                _db.QuestaoGrupos.Any(
-                    q =>
-                        q.codQuestao == questaoAtual.codQuestao
-                        && q.codGrupo == resposta.codGrupo
-                        && q.codAlternativa == resposta.alternativa);
+            var mesmaResposta = _db.QuestaoGrupos.Any(q => q.codQuestao == questaoAtual.codQuestao
+                                                        && q.codGrupo == resposta.codGrupo
+                                                        && q.codAlternativa == resposta.alternativa);
 
             if (mesmaResposta)
                 return Content(HttpStatusCode.BadRequest, new { message = "Assim como Homer Simpson, você está cometendo o mesmo erro esperando um resultado diferente" });
@@ -943,9 +915,7 @@ namespace TheLearningMaze_API.Controllers
                 {
                     case "A":
                         if (
-                            alternativas.Any(
-                                alternativa =>
-                                    alternativa.correta && (alternativa.codAlternativa == resposta.alternativa)))
+                            alternativas.Any(alternativa => alternativa.correta && (alternativa.codAlternativa == resposta.alternativa)))
                             acertou = true;
 
                         break;
@@ -968,26 +938,26 @@ namespace TheLearningMaze_API.Controllers
             }
             else
             {
-                //var alternativa = _db.Alternativas.First(a => !a.correta);
-                var alternativa = _db.Alternativas.Where(a => a.codQuestao == questaoAtual.codQuestao && !a.correta);
                 var acabouQuestoesErradas = true;
 
-                foreach (var item in alternativa)
+                alternativas.ForEach(a =>
                 {
+                    if (a.correta)
+                        return;
+
                     var jaEscolheuEssaAlternativa = _db.QuestaoGrupos.Any(q => q.codQuestao == questaoAtual.codQuestao
                                                                                && q.codGrupo == resposta.codGrupo
-                                                                               && q.codAlternativa == item.codAlternativa);
+                                                                               && q.codAlternativa == a.codAlternativa);
                     if (jaEscolheuEssaAlternativa)
-                        continue;
+                        return;
 
-                    resposta.alternativa = item.codAlternativa;
+                    resposta.alternativa = a.codAlternativa;
                     acabouQuestoesErradas = false;
-                    break;
-                }
+                });
 
                 if (acabouQuestoesErradas)
                 {
-                    var alternativaCorreta = _db.Alternativas.FirstOrDefault(a => a.codQuestao == questaoAtual.codQuestao && a.correta);
+                    var alternativaCorreta = alternativas.FirstOrDefault(a => a.correta);
 
                     if (alternativaCorreta != null)
                         resposta.alternativa = alternativaCorreta.codAlternativa;
@@ -1074,7 +1044,7 @@ namespace TheLearningMaze_API.Controllers
                                       }).ToArray();
 
                 if (questaoEventos.Length <= 0)
-                    return null;
+                    return new List<int>();
 
                 var retorno = new List<int>();
 
