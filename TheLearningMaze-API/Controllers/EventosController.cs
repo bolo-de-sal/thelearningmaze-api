@@ -693,6 +693,12 @@ namespace TheLearningMaze_API.Controllers
             if (grupos.Count < 2)
                 return Content(HttpStatusCode.BadRequest, new { message = "Evento não tem grupos suficientes para iniciar" });
 
+            foreach (var grupo in grupos)
+            {
+                if (!grupo.finalizado.Value)
+                    return Content(HttpStatusCode.BadRequest, new { message = "Evento não pode ser iniciado até que todos os grupos estejam finalizados" });
+            }
+
             var quantAssuntosGrupo = _db.Grupos.Where(g => g.codEvento == evento.codEvento).Select(g => g.codAssunto).Distinct();
 
             var quantAssuntos = _db.EventoAssuntos.Where(g => g.codEvento == evento.codEvento).Select(g => g.codAssunto).Distinct();
@@ -962,8 +968,32 @@ namespace TheLearningMaze_API.Controllers
             }
             else
             {
-                var alternativa = _db.Alternativas.First(a => !a.correta);
-                resposta.alternativa = alternativa.codAlternativa;
+                //var alternativa = _db.Alternativas.First(a => !a.correta);
+                var alternativa = _db.Alternativas.Where(a => a.codQuestao == questaoAtual.codQuestao && !a.correta);
+                var acabouQuestoesErradas = true;
+
+                foreach (var item in alternativa)
+                {
+                    var jaEscolheuEssaAlternativa = _db.QuestaoGrupos.Any(q => q.codQuestao == questaoAtual.codQuestao
+                                                                               && q.codGrupo == resposta.codGrupo
+                                                                               && q.codAlternativa == item.codAlternativa);
+                    if (jaEscolheuEssaAlternativa)
+                        continue;
+
+                    resposta.alternativa = item.codAlternativa;
+                    acabouQuestoesErradas = false;
+                    break;
+                }
+
+                if (acabouQuestoesErradas)
+                {
+                    var alternativaCorreta = _db.Alternativas.FirstOrDefault(a => a.codQuestao == questaoAtual.codQuestao && a.correta);
+
+                    if (alternativaCorreta != null)
+                        resposta.alternativa = alternativaCorreta.codAlternativa;
+                    else
+                        return Content(HttpStatusCode.NotFound, new { message = "Não foi encontrada alternativa correta para essa questão" });
+                }
             }
 
             var questaoGrupo = new QuestaoGrupo
